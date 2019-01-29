@@ -1,6 +1,5 @@
-package Jung.test;
 
-import java.awt.Dimension;
+import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,6 +18,7 @@ import edu.uci.ics.jung.graph.Forest;
 import edu.uci.ics.jung.graph.SparseMultigraph;
 import edu.uci.ics.jung.graph.util.Pair;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
+import org.apache.commons.collections15.Transformer;
 
 public class Grafo {
     public static void main( String[] args ) throws IOException
@@ -27,31 +27,39 @@ public class Grafo {
     	    //SparseMultigraph g = new SparseMultigraph();
     		
     		int nodi_P=0,nodi_C=0,nodi_L=0,nodi_D=0,archi_PC=0,archi_CL=0,archi_LD=0;
-    	
+			Color L0 = Color.BLUE, L1 = Color.RED, L2 =Color.GREEN, L3 = Color.YELLOW;
+
+			HashMap<String,Color> vertice_colore = new HashMap<>();
+
     	    int num_events= 2000;
     	    g.addVertex("P"); //Livello 0
+			vertice_colore.put("P",L0);
     	    nodi_P++;
-    	    
-    	    ArrayList<String> contesti = ReadCSV.getContesti();
+
+
+    	    ArrayList<String> contesti = Jung.test.ReadCSV.getContesti();
     	    nodi_C=contesti.size();
     	    for (int i = 0; i < nodi_C; i++) {
     	    	g.addEdge("PC:"+(++archi_PC), new Pair<String>("P", contesti.get(i)));
+    	    	vertice_colore.put(contesti.get(i),L1);
 	        }      //Livello 0-1
-    	    
-    	    HashMap<String,String[]> luoghi = ReadCSV.getPlacesNew();
+
+    	    HashMap<String,String[]> luoghi = Jung.test.ReadCSV.getPlacesNew();
     	    //alcuni luoghi hanno lo stesso nome, al momento vengono accorpati (19 luoghi, 852 in totale 833 usati)	
     	    Object[] nomi= luoghi.keySet().toArray();
     	    nodi_L=nomi.length;
-    	    nodi_D= ReadCSV.getNumCategorie(luoghi);
+    	    nodi_D= Jung.test.ReadCSV.getNumCategorie(luoghi);
 
     	    for (int i = 0; i < nomi.length; i++) {
     	    	String posto= nomi[i].toString();
+    	    	vertice_colore.put(posto,L2);
     	    	for (int y = 0; y < luoghi.get(posto).length; y++) {
     	    		g.addEdge("LD:"+(++archi_LD), new Pair<String>(posto, luoghi.get(posto)[y]));
+    	    		vertice_colore.put(luoghi.get(posto)[y], L3);
     	    	}
     	    }//Livello 2-3
-    	    
-    	   
+    	   	final int numero_luoghi = nodi_L;
+
     	    //TODOBETTER 1-2, bisogna pensare collegamenti tra luoghi e contesti reali, per adesso è random la scelta.
     	    //Qualcosa come gruppare i luoghi per categorie e scegliere in base al contesto un random tra un sottogruppo di categorie.
 	    	int p=0;
@@ -91,15 +99,21 @@ public class Grafo {
     		System.out.println("Max iterations = " + ranker.getMaxIterations() );	
     		
     		for (Object v : g.getVertices()) {
-    			System.out.println("Score = " + ranker.getVertexScore(v));	
-    }
-    		
+    			//System.out.println("Score = " + ranker.getVertexScore(v));
+    		}
+
+			Transformer<String, Paint> t_ColorVertex = new Transformer<String, Paint>() {
+				public Paint transform(String s) {
+					Paint color = vertice_colore.get(s);
+					return color;
+				}
+			};
     	   
     		DAGLayout l = new DAGLayout(g);
     	    VisualizationImageServer vs =
     	      new VisualizationImageServer(
-    	        l, new Dimension(1500, 1300));
-    		
+    	        l, new Dimension(1200, 800));
+    		vs.getRenderContext().setVertexFillPaintTransformer(t_ColorVertex);
     		/*
     		FRLayout l = new FRLayout(g);
     		
