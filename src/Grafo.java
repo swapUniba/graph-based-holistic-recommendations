@@ -1,6 +1,5 @@
-package Jung.test;
 
-import java.awt.Dimension;
+import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,6 +13,7 @@ import edu.uci.ics.jung.algorithms.scoring.PageRankWithPriors;
 import edu.uci.ics.jung.graph.DelegateForest;
 import edu.uci.ics.jung.graph.SparseMultigraph;
 import edu.uci.ics.jung.graph.util.Pair;
+
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 
 public class Grafo {
