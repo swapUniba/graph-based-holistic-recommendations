@@ -3,74 +3,79 @@ import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Set;
-
-import javax.swing.JFrame;
+import java.util.List;
 
 import edu.uci.ics.jung.algorithms.layout.DAGLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout2;
-import edu.uci.ics.jung.algorithms.layout.SpringLayout;
 import edu.uci.ics.jung.algorithms.scoring.PageRank;
+import edu.uci.ics.jung.algorithms.scoring.PageRankWithPriors;
 import edu.uci.ics.jung.graph.DelegateForest;
-import edu.uci.ics.jung.graph.Forest;
 import edu.uci.ics.jung.graph.SparseMultigraph;
 import edu.uci.ics.jung.graph.util.Pair;
-import edu.uci.ics.jung.visualization.VisualizationImageServer;
-import org.apache.commons.collections15.Transformer;
+
+import edu.uci.ics.jung.visualization.VisualizationViewer;
 
 public class Grafo {
-    public static void main( String[] args ) throws IOException
-    {
-    		Forest<String, String> g = new DelegateForest<String, String>();
-    	    //SparseMultigraph g = new SparseMultigraph();
-    		
-    		int nodi_P=0,nodi_C=0,nodi_L=0,nodi_D=0,archi_PC=0,archi_CL=0,archi_LD=0;
-			Color L0 = Color.BLUE, L1 = Color.RED, L2 =Color.GREEN, L3 = Color.YELLOW;
-
-			HashMap<String,Color> vertice_colore = new HashMap<>();
-
-    	    int num_events= 2000;
-    	    g.addVertex("P"); //Livello 0
-			vertice_colore.put("P",L0);
-    	    nodi_P++;
-
-
-    	    ArrayList<String> contesti = Jung.test.ReadCSV.getContesti();
-    	    nodi_C=contesti.size();
-    	    for (int i = 0; i < nodi_C; i++) {
-    	    	g.addEdge("PC:"+(++archi_PC), new Pair<String>("P", contesti.get(i)));
-    	    	vertice_colore.put(contesti.get(i),L1);
+    public static void main( String[] args ) throws IOException {
+    	
+    		//-----------INIT GRAPH-------------------
+    		DelegateForest<String, String> graph = new DelegateForest<String, String>();
+		    //SparseMultigraph g = new SparseMultigraph();
+			
+			int nodi_P=0,nodi_C=0,nodi_L=0,nodi_D=0,archi_PC=0,archi_CL=0,archi_LD=0;
+		
+		    int num_events= 200;
+		    graph.addVertex("P_"); //Livello 0
+		    nodi_P++;
+		    
+		    ArrayList<String> contesti = FromFile.getContesti();
+		    nodi_C=contesti.size();
+		    for (int i = 0; i < nodi_C; i++) {
+		    	graph.addEdge("PC:"+(++archi_PC), new Pair<String>("P_", "C_"+contesti.get(i)));
 	        }      //Livello 0-1
-
-    	    HashMap<String,String[]> luoghi = Jung.test.ReadCSV.getPlacesNew();
-    	    //alcuni luoghi hanno lo stesso nome, al momento vengono accorpati (19 luoghi, 852 in totale 833 usati)	
-    	    Object[] nomi= luoghi.keySet().toArray();
-    	    nodi_L=nomi.length;
-    	    nodi_D= Jung.test.ReadCSV.getNumCategorie(luoghi);
-
-    	    for (int i = 0; i < nomi.length; i++) {
-    	    	String posto= nomi[i].toString();
-    	    	vertice_colore.put(posto,L2);
-    	    	for (int y = 0; y < luoghi.get(posto).length; y++) {
-    	    		g.addEdge("LD:"+(++archi_LD), new Pair<String>(posto, luoghi.get(posto)[y]));
-    	    		vertice_colore.put(luoghi.get(posto)[y], L3);
-    	    	}
-    	    }//Livello 2-3
-    	   	final int numero_luoghi = nodi_L;
-
-    	    //TODOBETTER 1-2, bisogna pensare collegamenti tra luoghi e contesti reali, per adesso è random la scelta.
-    	    //Qualcosa come gruppare i luoghi per categorie e scegliere in base al contesto un random tra un sottogruppo di categorie.
-	    	int p=0;
-    	    for (int i = 0; i < num_events; i++) {
-    	    	if (p==contesti.size()) p=0;
-    	    	int rand_L = (int)(Math.random() * luoghi.size());
-    	    	g.addEdge("CL:"+(++archi_CL), new Pair<String>(contesti.get(p), nomi[rand_L].toString()));
-    	    	p++;
-	        }
-	    
-    	    
+		    
+		    HashMap<String,String[]> luoghi = FromFile.getPlacesNew();
+		    HashMap<String,List<Object>> contestiCateg = FromFile.getContestiCategorizzati();
+		    //alcuni luoghi hanno lo stesso nome, al momento vengono accorpati (19 luoghi, 852 in totale 833 usati)	
+		    Object[] nomi= luoghi.keySet().toArray();
+		    nodi_L=nomi.length;
+		    nodi_D= FromFile.getCategorie().size();
+	
+		    for (int i = 0; i < nomi.length; i++) {
+		    	String posto= nomi[i].toString();
+		    	for (int y = 0; y < luoghi.get(posto).length; y++) {
+		    		graph.addEdge("LD:"+(++archi_LD), new Pair<String>("L_"+posto, "D_"+luoghi.get(posto)[y]));
+		    	}
+		    }//Livello 2-3
+		    
+		   
+		    //Per adesso, è spalmato equamente sui contesti
+		    //Prendo i contesti di fila, prendo un luogo a caso, verifico se il luogo ha tutte le categorie adatte per quel contesto, se si linko altrimenti riprovo
+		    int p=0;
+		    for (int i = 0; i < num_events; i++) {
+		    	if (p==contesti.size()) p=0;
+		    	List<Object> contestiToCheck = contestiCateg.get(contesti.get(p));
+		    	int rand_L = (int)(Math.random() * luoghi.size());
+		    	String luogo = nomi[rand_L].toString();
+		    	String[] categorieLuogo = luoghi.get(luogo);
+		    	boolean check=true;
+		    	for(int y=0;y<categorieLuogo.length;y++) {
+		    		if(!contestiToCheck.contains(categorieLuogo[y])) {
+		    			check=false;
+		    		}
+		    	}
+		    	if(check) {
+			    	graph.addEdge("CL:"+(++archi_CL), new Pair<String>("C_"+contesti.get(p), "L_"+nomi[rand_L].toString()));
+			    	p++;
+		    	}
+		    	else {
+		    		i--;
+		    	}
+	
+        }//Livello 1-2
+    
+    	  //-----------DETTAGLI-------------------
     	    //alcuni dati sul Grafo a scopo di verifica
     	    //Livello 0 - nodi Persona, al momento caso singolo =1;
     	    //Livello 1 - nodi Contesto, dati dal file contesti.csv generato in base a quelli forniti dal professore, volendo sono modificabili
@@ -89,8 +94,12 @@ public class Grafo {
     		System.out.println("Archi 2-3 LD: "+ archi_LD);	
     		System.out.println("---");
     	    
+    		
+    		//-----------PAGERANK-------------------
+    		
     	    //il pagerank è ancora quello normale finchè non capisco come creare il parametro per poter usare quello con prior
-    	    PageRank ranker = new PageRank(g , 0.3);
+    	    PageRank ranker = new PageRank(graph , 0.3);
+    	    //PageRankWithPriors<V, E> ranker = new PageRank(graph , 0.3);
     	    ranker.evaluate();
     	    
     	    
@@ -98,36 +107,29 @@ public class Grafo {
     		System.out.println("Dump factor = " + (1.00d - ranker.getAlpha() ) );	
     		System.out.println("Max iterations = " + ranker.getMaxIterations() );	
     		
-    		for (Object v : g.getVertices()) {
-    			//System.out.println("Score = " + ranker.getVertexScore(v));
-    		}
-
-			Transformer<String, Paint> t_ColorVertex = new Transformer<String, Paint>() {
-				public Paint transform(String s) {
-					Paint color = vertice_colore.get(s);
-					return color;
-				}
-			};
+    		for (Object v : graph.getVertices()) {
+    			System.out.println("Score = " + ranker.getVertexScore(v));	
+    }
+    		
     	   
-    		DAGLayout l = new DAGLayout(g);
-    	    VisualizationImageServer vs =
-    	      new VisualizationImageServer(
-    	        l, new Dimension(1200, 800));
-    		vs.getRenderContext().setVertexFillPaintTransformer(t_ColorVertex);
+    		//-----------LAYOUT AND SHOW-------------------
     		/*
     		FRLayout l = new FRLayout(g);
+    	    VisualizationViewer<String, String> vs = new VisualizationViewer<String, String>(layout, new Dimension(1500, 1300));
+    	    */
     		
-    	    VisualizationImageServer vs =
-    	      new VisualizationImageServer(
-    	        l, new Dimension(1500, 1300));
-    	       */
+    		DAGLayout<String, String> layout = new DAGLayout<String, String>(graph);
+    	    VisualizationViewer<String, String> vs = new VisualizationViewer<String, String>(layout, new Dimension(1500,1300));
+    	    vs.getRenderer().setVertexRenderer(new CustomRenderer());
+    	    ShowGraph.Show(vs);
+
+
+    		//-----------EXPORT GRAPH------------------
+    	    /*
+    	    //fix graphml export
+    	    ExportGraph.exportAsGraphML(g, "prova");
+    	    ExportGraph.exportAsNet(g, "test");
+			*/
+    } 
     	   
-    	    JFrame frame = new JFrame();
-    	    frame.getContentPane().add(vs);
-    	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    	    frame.pack();
-    	    frame.setVisible(true);
-    	 
-    	    
-    }
 }
