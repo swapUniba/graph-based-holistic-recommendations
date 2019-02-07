@@ -109,7 +109,8 @@ public class Grafo {
     		System.out.println("Max iterations = " + ranker.getMaxIterations() );	
     		
     		for (Object v : graph.getVertices()) {
-    			System.out.println("Score = " + ranker.getVertexScore(v));	
+				if(v.toString().contains("L_"))
+    			System.out.println(v.toString()+" - Score = " + ranker.getVertexScore(v));
     }
     		
     	   
