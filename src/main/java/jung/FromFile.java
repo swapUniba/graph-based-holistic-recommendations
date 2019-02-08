@@ -16,10 +16,21 @@ import org.json.JSONObject;
 
 public class FromFile {
 
+	private static String data = "torino";
+	private static String data_folder="data/";
+
+	public static void SetData(String dataset){
+		data=dataset;
+	}
+
+	private static String GetPath(String file){
+		return data_folder+data+"/"+file;
+	}
+
 	public static HashMap<String, String[]> getPlacesNew() throws IOException
 
 	{
-		File file = new File("businesses_torino.csv");
+		File file = new File(GetPath("businesses_"+data+".csv"));
 
 		BufferedReader br = new BufferedReader(new FileReader(file));
 
@@ -41,7 +52,7 @@ public class FromFile {
 	public static ArrayList<ArrayList<String>> getPlaces() throws IOException
 
 	{
-		File file = new File("businesses_torino.csv");
+		File file = new File(GetPath("businesses_"+data+".csv"));
 
 		BufferedReader br = new BufferedReader(new FileReader(file));
 
@@ -66,7 +77,7 @@ public class FromFile {
 
 	public static ArrayList<String> getContesti() throws IOException {
 
-		File file = new File("contesti.txt");
+		File file = new File(GetPath("contesti.txt"));
 
 		BufferedReader br = new BufferedReader(new FileReader(file));
 
@@ -100,7 +111,7 @@ public class FromFile {
 
 	public static ArrayList<String> getCategorie() throws IOException {
 
-		File file = new File("categorie.txt");
+		File file = new File(GetPath("categorie.txt"));
 		BufferedReader br = new BufferedReader(new FileReader(file));
 		String st;
 		ArrayList<String> categ = new ArrayList<String>();
@@ -114,7 +125,7 @@ public class FromFile {
 
 	public static HashMap<String, List<Object>> getContestiCategorizzati() throws IOException {
 
-		JSONObject obj = parseJSONFile("contesti_categorie.json");
+		JSONObject obj = parseJSONFile(GetPath("contesti_categorie.json"));
 		JSONArray names = obj.names();
 		HashMap<String, List<Object>> mappa = new HashMap<String, List<Object>>();
 		
