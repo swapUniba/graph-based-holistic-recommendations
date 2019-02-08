@@ -1,15 +1,15 @@
 package jung;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Main {
     public static void main( String[] args ) throws IOException {
 
-        String data = "torino";
-        //String data = "bari";
-        FromFile.SetData(data);
+        Grafo grafo = new Grafo("torino");
+        //Grafo grafo = new Grafo("bari");
 
-        Grafo grafo = new Grafo();
         grafo.Mostra();
         grafo.Pagerank();
 

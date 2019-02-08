@@ -22,8 +22,8 @@ public class Grafo {
 
 	private DelegateForest<String, String> graph;
 
-	public Grafo() throws IOException {
-
+	public Grafo(String data) throws IOException {
+		FromFile.SetData(data);
 
 		//-----------INIT GRAPH-------------------
 		graph = new DelegateForest<String, String>();
