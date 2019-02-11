@@ -1,25 +1,21 @@
 package jung;
 
-import java.awt.*;
+
+import java.awt.Dimension;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.google.common.base.Function;
 import edu.uci.ics.jung.algorithms.layout.DAGLayout;
-import edu.uci.ics.jung.algorithms.layout.FRLayout;
-import edu.uci.ics.jung.algorithms.layout.FRLayout2;
 import edu.uci.ics.jung.algorithms.scoring.PageRank;
 import edu.uci.ics.jung.algorithms.scoring.PageRankWithPriors;
 import edu.uci.ics.jung.graph.DelegateForest;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.SparseMultigraph;
 import edu.uci.ics.jung.graph.util.Pair;
-
 import edu.uci.ics.jung.visualization.VisualizationViewer;
+
+import javax.swing.*;
 
 public class Grafo {
 
@@ -202,7 +198,11 @@ public class Grafo {
 		DAGLayout<String, String> layout = new DAGLayout<String, String>(graph);
 		VisualizationViewer<String, String> vs = new VisualizationViewer<String, String>(layout, new Dimension(1500,1300));
 		vs.getRenderer().setVertexRenderer(new CustomRenderer());
-		ShowGraph.Show(vs);
+		JFrame frame = new JFrame();
+		frame.getContentPane().add(vs);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.pack();
+		frame.setVisible(true);
 	}
 
 	public void Esporta(String type, String filename) throws IOException {
