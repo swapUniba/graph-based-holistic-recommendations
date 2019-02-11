@@ -3,9 +3,12 @@ package jung;
 import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import com.google.common.base.Function;
 import edu.uci.ics.jung.algorithms.layout.DAGLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout2;
@@ -21,27 +24,30 @@ import edu.uci.ics.jung.visualization.VisualizationViewer;
 public class Grafo {
 
 	private DelegateForest<String, String> graph;
+	private HashMap<String,String[]> luoghi;
+	private ArrayList<String> contesti;
 
 	public Grafo(String data) throws IOException {
 		FromFile.SetData(data);
 
-		//-----------INIT GRAPH-------------------
-		graph = new DelegateForest<String, String>();
-		//SparseMultigraph g = new SparseMultigraph();
 
+		graph = new DelegateForest<>();
 		int nodi_P=0,nodi_C=0,nodi_L=0,nodi_D=0,archi_PC=0,archi_CL=0,archi_LD=0;
+		int num_events= 500;
 
-		int num_events= 200;
+
 		graph.addVertex("P_"); //Livello 0
 		nodi_P++;
 
-		ArrayList<String> contesti = FromFile.getContesti();
+
+		contesti = FromFile.getContesti();
 		nodi_C=contesti.size();
+
 		for (int i = 0; i < nodi_C; i++) {
-			graph.addEdge("PC:"+(++archi_PC), new Pair<String>("P_", "C_"+contesti.get(i)));
+			graph.addEdge("PC:"+(++archi_PC), new Pair<>("P_", "C_"+contesti.get(i)));
 		}      //Livello 0-1
 
-		HashMap<String,String[]> luoghi = FromFile.getPlacesNew();
+		luoghi = FromFile.getPlacesNew();
 		HashMap<String,List<Object>> contestiCateg = FromFile.getContestiCategorizzati();
 		//alcuni luoghi hanno lo stesso nome, al momento vengono accorpati (19 luoghi, 852 in totale 833 usati)
 		Object[] nomi= luoghi.keySet().toArray();
@@ -51,9 +57,10 @@ public class Grafo {
 		for (int i = 0; i < nomi.length; i++) {
 			String posto= nomi[i].toString();
 			for (int y = 0; y < luoghi.get(posto).length; y++) {
-				graph.addEdge("LD:"+(++archi_LD), new Pair<String>("L_"+posto, "D_"+luoghi.get(posto)[y]));
+				graph.addEdge("LD:"+(++archi_LD), new Pair<>("L_"+posto, "D_"+luoghi.get(posto)[y]));
 			}
 		}//Livello 2-3
+
 
 
 		//Per adesso, è spalmato equamente sui contesti
@@ -71,13 +78,15 @@ public class Grafo {
 					check=false;
 				}
 			}
+			//System.out.println("Contesto:" +contesti.get(p) + " - Luogo: " + nomi[rand_L]+ " - Contesti Luogo: "+ Arrays.toString(categorieLuogo) + " - Check: " + check);
 			if(check) {
-				graph.addEdge("CL:"+(++archi_CL), new Pair<String>("C_"+contesti.get(p), "L_"+nomi[rand_L].toString()));
+				graph.addEdge("CL:"+(++archi_CL), new Pair<>("C_"+contesti.get(p), "L_"+nomi[rand_L].toString()));
 				p++;
 			}
 			else {
 				i--;
 			}
+
 
 		}//Livello 1-2
 
@@ -87,10 +96,10 @@ public class Grafo {
 		//Livello 1 - nodi Contesto, dati dal file contesti.csv generato in base a quelli forniti dal professore, volendo sono modificabili
 		//Livello 2 - nodi Luogo, estratti dal file business_torino.csv
 		//Livello 3 - nodi Descrizione, estratti dal file business_torino.csv
-		//Archi 0-1 PC - archi da Persona a Contesti, livello full connected
+		//Archi 0-1 PC - archi da Persona a Contesti, livello full connected (TOTEST NOT FULL CONNECTED?)
 		//Archi 1-2 CL - archi da Contesti a Luoghi, al momento generati casualmente in base al valore num_events, ma da sostituire con le azioni passate degli utenti
 		//Archi 2-3 LD - archi da Luoghi a Descrizioni, livello statico estratti dal file business_torino.csv
-		System.out.println("Dettagli jung.Grafo");
+		System.out.println("Dettagli Grafo");
 		System.out.println("Livello 0 - Nodi P: "+ nodi_P);
 		System.out.println("Livello 1 - Nodi C: "+ nodi_C);
 		System.out.println("Livello 2 - Nodi L: "+ nodi_L);
@@ -101,31 +110,89 @@ public class Grafo {
 		System.out.println("---");
 	}
 
-	public void Pagerank(){
-		//-----------PAGERANK-------------------
+	public void Pagerank(int top_results){
 
-		//il pagerank è ancora quello normale finchè non capisco come creare il parametro per poter usare quello con prior
 		PageRank ranker = new PageRank(graph , 0.3);
-		//PageRankWithPriors<V, E> ranker = new PageRank(graph , 0.3);
 		ranker.evaluate();
 
-
+		System.out.println("Dettagli Pagerank");
 		System.out.println("Tolerance = " + ranker.getTolerance());
 		System.out.println("Dump factor = " + (1.00d - ranker.getAlpha() ) );
 		System.out.println("Max iterations = " + ranker.getMaxIterations() );
 
+		HashMap<String, Double> map = new HashMap();
 		for (Object v : graph.getVertices()) {
-			if(v.toString().contains("L_"))
-				System.out.println(v.toString()+" - Score = " + ranker.getVertexScore(v));
+			if(v.toString().contains("L_") && !ranker.getVertexScore(v).toString().equals("0.0")) {
+				map.put(v.toString(),(Double) ranker.getVertexScore(v));
+			}
 		}
-	}
-	public void Mostra(){
 
-		//-----------LAYOUT AND SHOW-------------------
-    		/*
-    		FRLayout l = new FRLayout(g);
-    	    VisualizationViewer<String, String> vs = new VisualizationViewer<String, String>(layout, new Dimension(1500, 1300));
-    	    */
+		Object[] obj= map.entrySet().stream()
+				.sorted((k1, k2)-> -k1.getValue().compareTo(k2.getValue())).toArray();
+
+		for (int i = 0; i < top_results; i++) {
+			String nome = obj[i].toString();
+			String score= nome.substring(nome.indexOf("=")+1);
+			nome= nome.substring(nome.indexOf("_")+1,nome.indexOf("="));
+			String stamp=i+1 + " - " + nome + " - Score: "+score+" [";
+			String[] cats = luoghi.get(nome);
+			for (String s: cats
+			) {
+				stamp=stamp.concat(s+",");
+			}
+			stamp=stamp.substring(0,stamp.length()-1).concat("]");
+			System.out.println(stamp);
+		}
+
+		System.out.println("---");
+	}
+
+	public void PagerankPriors(List<String> full_contesto, int top_results){
+
+		Function f = ((Object i) -> {
+			if(full_contesto.contains(i)) return 1.0;
+			else return 0.0;
+		});
+
+		PageRankWithPriors ranker = new PageRankWithPriors(graph , f, 0.3	);
+		ranker.evaluate();
+
+		System.out.println("Dettagli PagerankWithPriors");
+		System.out.println("Tolerance = " + ranker.getTolerance());
+		System.out.println("Dump factor = " + (1.00d - ranker.getAlpha() ) );
+		System.out.println("Max iterations = " + ranker.getMaxIterations() );
+
+		//Magari dopo i risultati rifiltrare per categoria per ottenere risultati completamente coerenti
+		System.out.println("Contesto preso in considerazione: " + full_contesto);
+
+		HashMap<String, Double> map = new HashMap();
+		for (Object v : graph.getVertices()) {
+			if(v.toString().contains("L_") && !ranker.getVertexScore(v).toString().equals("0.0")) {
+				map.put(v.toString(),(Double) ranker.getVertexScore(v));
+			}
+		}
+
+		Object[] obj= map.entrySet().stream()
+				.sorted((k1, k2)-> -k1.getValue().compareTo(k2.getValue())).toArray();
+
+		for (int i = 0; i < top_results; i++) {
+			String nome = obj[i].toString();
+			String score= nome.substring(nome.indexOf("=")+1);
+			nome= nome.substring(nome.indexOf("_")+1,nome.indexOf("="));
+			String stamp=i+1 + " - " + nome + " - Score: "+score+" [";
+			String[] cats = luoghi.get(nome);
+			for (String s: cats
+				 ) {
+				stamp=stamp.concat(s+",");
+			}
+			stamp=stamp.substring(0,stamp.length()-1).concat("]");
+			System.out.println(stamp);
+		}
+		System.out.println("---");
+	}
+
+
+	public void Mostra(){
 
 		DAGLayout<String, String> layout = new DAGLayout<String, String>(graph);
 		VisualizationViewer<String, String> vs = new VisualizationViewer<String, String>(layout, new Dimension(1500,1300));
@@ -134,6 +201,7 @@ public class Grafo {
 	}
 
 	public void Esporta(String type, String filename) throws IOException {
+
     	    //fix graphml export
 			if(type.equals("GraphML")) ExportGraph.exportAsGraphML(graph, filename);
 			else if(type.equals("Net")) ExportGraph.exportAsNet(graph, filename);

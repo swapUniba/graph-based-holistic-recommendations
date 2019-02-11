@@ -6,9 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -146,6 +144,34 @@ public class FromFile {
 		return new JSONObject(content);
 	}
 
-	
+	public static List<String> RandomContext() throws IOException {
+
+		ArrayList<String> Random_Context = new ArrayList<String>();
+		Random_Context.add("P_");
+
+		File file = new File(GetPath("contesti.txt"));
+
+		BufferedReader br = new BufferedReader(new FileReader(file));
+
+		String st;
+		String[] all;
+		HashMap<String,ArrayList<String>> mappa = new HashMap<>();
+
+		while ((st = br.readLine()) != null) {
+			all = st.split("=");
+			if(!mappa.containsKey(all[0])){
+				mappa.put(all[0],new ArrayList<>());
+				mappa.get(all[0]).add(all[1]);
+			}
+			else{
+				mappa.get(all[0]).add(all[1]);
+			}
+		}
+		br.close();
+
+		mappa.keySet().stream().forEach((Object j)-> Random_Context.add("C_" + mappa.get(j).get(new Random().nextInt(mappa.get(j).size()))));
+
+		return Random_Context;
+	}
 
 }
