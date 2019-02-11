@@ -20,7 +20,7 @@ public class Main {
         //grafo.PagerankPriors(contesto, top_risultati);
         grafo.PagerankPriors(FromFile.RandomContext(), top_risultati);
 
-        //grafo.Mostra();
+        grafo.Mostra();
 
     }
 }
