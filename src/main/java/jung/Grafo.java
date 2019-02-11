@@ -27,7 +27,7 @@ public class Grafo {
 	private HashMap<String,String[]> luoghi;
 	private ArrayList<String> contesti;
 
-	public Grafo(String data) throws IOException {
+	public Grafo(String data, int numero_persone) throws IOException {
 		FromFile.SetData(data);
 
 
@@ -36,16 +36,21 @@ public class Grafo {
 		int num_events= 500;
 
 
-		graph.addVertex("P_"); //Livello 0
-		nodi_P++;
+		for (int i = 0; i < numero_persone; i++) {
+			graph.addVertex("P_"+i); //Livello 0
+			nodi_P++;
+		}
+
 
 
 		contesti = FromFile.getContesti();
 		nodi_C=contesti.size();
 
-		for (int i = 0; i < nodi_C; i++) {
-			graph.addEdge("PC:"+(++archi_PC), new Pair<>("P_", "C_"+contesti.get(i)));
-		}      //Livello 0-1
+		for (int i = 0; i < numero_persone ; i++) {
+			for (int y = 0; y < nodi_C; y++) {
+				graph.addEdge("PC:"+(++archi_PC), new Pair<>("P_"+i, "C_"+contesti.get(y)));
+			}
+		}//Livello 0-1
 
 		luoghi = FromFile.getPlacesNew();
 		HashMap<String,List<Object>> contestiCateg = FromFile.getContestiCategorizzati();

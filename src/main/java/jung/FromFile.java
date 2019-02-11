@@ -147,7 +147,7 @@ public class FromFile {
 	public static List<String> RandomContext() throws IOException {
 
 		ArrayList<String> Random_Context = new ArrayList<String>();
-		Random_Context.add("P_");
+		Random_Context.add("P_0");
 
 		File file = new File(GetPath("contesti.txt"));
 
