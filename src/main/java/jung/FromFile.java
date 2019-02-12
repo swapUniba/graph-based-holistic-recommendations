@@ -1,4 +1,4 @@
-package Jung.test;
+package jung;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -9,6 +9,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
+
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -16,10 +18,21 @@ import org.json.JSONObject;
 
 public class FromFile {
 
+	private static String data = "torino";
+	private static String data_folder="data/";
+
+	public static void SetData(String dataset){
+		data=dataset;
+	}
+
+	private static String GetPath(String file){
+		return data_folder+data+"/"+file;
+	}
+
 	public static HashMap<String, String[]> getPlacesNew() throws IOException
 
 	{
-		File file = new File("businesses_torino.csv");
+		File file = new File(GetPath("businesses_"+data+".csv"));
 
 		BufferedReader br = new BufferedReader(new FileReader(file));
 
@@ -30,7 +43,6 @@ public class FromFile {
 		while ((st = br.readLine()) != null) {
 			all = st.split(",");
 			String[] cats = all[6].replaceAll("'", "").trim().split("\\s*;\\s*");
-			;
 			dict.put(all[1].replaceAll("'", "").trim(), cats);
 		}
 
@@ -42,7 +54,7 @@ public class FromFile {
 	public static ArrayList<ArrayList<String>> getPlaces() throws IOException
 
 	{
-		File file = new File("businesses_torino.csv");
+		File file = new File(GetPath("businesses_"+data+".csv"));
 
 		BufferedReader br = new BufferedReader(new FileReader(file));
 
@@ -67,7 +79,7 @@ public class FromFile {
 
 	public static ArrayList<String> getContesti() throws IOException {
 
-		File file = new File("contesti.txt");
+		File file = new File(GetPath("contesti.txt"));
 
 		BufferedReader br = new BufferedReader(new FileReader(file));
 
@@ -101,7 +113,7 @@ public class FromFile {
 
 	public static ArrayList<String> getCategorie() throws IOException {
 
-		File file = new File("categorie.txt");
+		File file = new File(GetPath("categorie.txt"));
 		BufferedReader br = new BufferedReader(new FileReader(file));
 		String st;
 		ArrayList<String> categ = new ArrayList<String>();
@@ -115,7 +127,7 @@ public class FromFile {
 
 	public static HashMap<String, List<Object>> getContestiCategorizzati() throws IOException {
 
-		JSONObject obj = parseJSONFile("contesti_categorie.json");
+		JSONObject obj = parseJSONFile(GetPath("contesti_categorie.json"));
 		JSONArray names = obj.names();
 		HashMap<String, List<Object>> mappa = new HashMap<String, List<Object>>();
 		
@@ -136,6 +148,34 @@ public class FromFile {
 		return new JSONObject(content);
 	}
 
-	
+	public static List<String> RandomContext() throws IOException {
+
+		ArrayList<String> Random_Context = new ArrayList<String>();
+		Random_Context.add("P_0");
+
+		File file = new File(GetPath("contesti.txt"));
+
+		BufferedReader br = new BufferedReader(new FileReader(file));
+
+		String st;
+		String[] all;
+		HashMap<String,ArrayList<String>> mappa = new HashMap<>();
+
+		while ((st = br.readLine()) != null) {
+			all = st.split("=");
+			if(!mappa.containsKey(all[0])){
+				mappa.put(all[0],new ArrayList<>());
+				mappa.get(all[0]).add(all[1]);
+			}
+			else{
+				mappa.get(all[0]).add(all[1]);
+			}
+		}
+		br.close();
+
+		mappa.keySet().stream().forEach((Object j)-> Random_Context.add("C_" + mappa.get(j).get(new Random().nextInt(mappa.get(j).size()))));
+
+		return Random_Context;
+	}
 
 }

@@ -1,4 +1,4 @@
-package Jung.test;
+package jung;
 
 import java.awt.Color;
 import java.awt.Shape;

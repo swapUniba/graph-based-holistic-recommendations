@@ -1,4 +1,4 @@
-package Jung.test;
+package jung;
 
 import java.io.FileWriter;
 import java.io.IOException;
