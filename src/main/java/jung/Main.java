@@ -9,7 +9,7 @@ public class Main {
 
         //TOTEST WITH AND WITHOUT P_
         String citta = "torino"; //"bari"
-        int numero_persone = 5;
+        int numero_persone = 3;
         boolean full_connected = false;
         int top_risultati = 5;
         //List<String> contesto = Arrays.asList("P_0", "C_bambini","C_colazione","C_cattivo_umore","C_non_buona_salute","C_weekend");
