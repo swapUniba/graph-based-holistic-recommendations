@@ -1,13 +1,7 @@
 package jung;
 
 
-import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
-import java.io.File;
+import java.awt.Dimension;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,10 +15,7 @@ import edu.uci.ics.jung.graph.DelegateForest;
 import edu.uci.ics.jung.graph.util.Pair;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
-
-import static javax.swing.JFrame.EXIT_ON_CLOSE;
 
 public class Grafo {
 
@@ -218,44 +209,14 @@ public class Grafo {
 	public void Mostra(){
 
 		DAGLayout<String, String> layout = new DAGLayout<String, String>(graph);
+		layout.setRoot("P_0");
 		VisualizationViewer<String, String> vs = new VisualizationViewer<String, String>(layout, new Dimension(1500,1300));
 		vs.getRenderer().setVertexRenderer(new CustomRenderer());
 		JFrame frame = new JFrame();
-		vs.addKeyListener(new KeyListener() {
-			@Override
-			public void keyTyped(KeyEvent e) {
-			}
-
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if(e.getKeyCode()== KeyEvent.VK_P) {
-					Container content = frame.getContentPane();
-					BufferedImage img = new BufferedImage(content.getWidth(), content.getHeight(), BufferedImage.TYPE_INT_RGB);
-					Graphics2D g2d = img.createGraphics();
-					content.printAll(g2d);
-					g2d.dispose();
-
-					try {
-						ImageIO.write(img, "png", new File("GraphImage.png"));
-					} catch (IOException ex) {
-						ex.printStackTrace();
-					}
-				}
-			}
-
-			@Override
-			public void keyReleased(KeyEvent e) {
-			}
-		});
-
 		frame.getContentPane().add(vs);
-		frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.pack();
 		frame.setVisible(true);
-		frame.setTitle("Holistic Recommendation Graph");
-		frame.setIconImage(new ImageIcon("data/icon.png").getImage());
-		frame.setLocationRelativeTo(null);
-
 	}
 
 	public void Esporta(String type, String filename) throws IOException {
