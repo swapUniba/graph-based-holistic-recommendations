@@ -31,10 +31,12 @@ public class Grafo {
 	private DelegateForest<String, String> graph;
 	private HashMap<String,String[]> luoghi;
 	private ArrayList<String> contesti;
+	private List<String> contesto;
 
-	public Grafo(String data, int numero_persone) throws IOException {
+	public Grafo(String data, int numero_persone, boolean full_connected, List<String> input_contesto) throws IOException {
 		FromFile.SetData(data);
 
+		contesto= input_contesto;
 
 		graph = new DelegateForest<>();
 		int nodi_P=0,nodi_C=0,nodi_L=0,nodi_D=0,archi_PC=0,archi_CL=0,archi_LD=0;
@@ -51,11 +53,22 @@ public class Grafo {
 		contesti = FromFile.getContesti();
 		nodi_C=contesti.size();
 
-		for (int i = 0; i < numero_persone ; i++) {
-			for (int y = 0; y < nodi_C; y++) {
-				graph.addEdge("PC:"+(++archi_PC), new Pair<>("P_"+i, "C_"+contesti.get(y)));
+		if(full_connected) {
+			for (int i = 0; i < numero_persone; i++) {
+				for (int y = 0; y < nodi_C; y++) {
+					graph.addEdge("PC:" + (++archi_PC), new Pair<>("P_" + i, "C_" + contesti.get(y)));
+				}
+			}
+		}
+		else{
+			//capire come connettere le altre persone
+			for (int i = 0; i < numero_persone; i++) {
+				for (int y = 1; y < contesto.size(); y++) {
+					graph.addEdge("PC:" + (++archi_PC), new Pair<>("P_" + i, contesto.get(y)));
+				}
 			}
 		}//Livello 0-1
+
 
 		luoghi = FromFile.getPlacesNew();
 		HashMap<String,List<Object>> contestiCateg = FromFile.getContestiCategorizzati();
@@ -157,10 +170,10 @@ public class Grafo {
 		System.out.println("---");
 	}
 
-	public void PagerankPriors(List<String> full_contesto, int top_results){
+	public void PagerankPriors(int top_results){
 
 		Function f = ((Object i) -> {
-			if(full_contesto.contains(i)) return 1.0;
+			if(contesto.contains(i)) return 1.0;
 			else return 0.0;
 		});
 
@@ -173,7 +186,7 @@ public class Grafo {
 		System.out.println("Max iterations = " + ranker.getMaxIterations() );
 
 		//Magari dopo i risultati rifiltrare per categoria per ottenere risultati completamente coerenti
-		System.out.println("Contesto preso in considerazione: " + full_contesto);
+		System.out.println("Contesto preso in considerazione: " + contesto);
 
 		HashMap<String, Double> map = new HashMap();
 		for (Object v : graph.getVertices()) {
