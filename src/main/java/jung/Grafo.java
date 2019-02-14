@@ -7,10 +7,8 @@ import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Scanner;
 
 import com.google.common.base.Function;
 import edu.uci.ics.jung.algorithms.layout.DAGLayout;
@@ -29,36 +27,45 @@ public class Grafo {
     private HashMap<String, String[]> luoghi;
     private ArrayList<String> contesti;
     private List<String> contesto;
-
+    private HashMap<String, ArrayList<String>> preferenze;
     public Grafo(String data, int numero_persone, boolean full_connected, List<String> input_contesto) throws IOException {
         FromFile.SetData(data);
-
+        //Save context user locally
         contesto = input_contesto;
 
+        //Instantiante Graph Boject
         graph = new DelegateForest<>();
         int nodi_P = 0, nodi_C = 0, nodi_L = 0, nodi_D = 0, archi_PC = 0, archi_CL = 0, archi_LD = 0;
-        int num_events = 500;
+        int num_events = 50;
 
-
+        //Create users
         for (int i = 0; i < numero_persone; i++) {
             graph.addVertex("P_" + i); //Livello 0
             nodi_P++;
         }
 
-
+        // Read context from file
         contesti = FromFile.getContesti();
+        // Get number of context
         nodi_C = contesti.size();
 
+
         if (full_connected) {
+            // For each user
             for (int i = 0; i < numero_persone; i++) {
+                // For each different context parameters (TAKING ALL VALUES)
                 for (int y = 0; y < nodi_C; y++) {
+                    // Create edge between (Users - Context Parameters)
                     graph.addEdge("PC:" + (++archi_PC), new Pair<>("P_" + i, "C_" + contesti.get(y)));
                 }
             }
         } else {
-            //capire come connettere le altre persone
+            // TODO: capire come connettere le altre persone
+            // For each user
             for (int i = 0; i < numero_persone; i++) {
+                // For each different context parameters (TAKING ONLY USER VALUES)
                 for (int y = 1; y < contesto.size(); y++) {
+                    // Create edge between (Users - User Context Parameters)
                     graph.addEdge("PC:" + (++archi_PC), new Pair<>("P_" + i, contesto.get(y)));
                 }
             }
@@ -80,6 +87,8 @@ public class Grafo {
         }//Livello 2-3
 
 
+
+        HashMap<String, ArrayList<String>> pref = new HashMap<>();
         //Per adesso, è spalmato equamente sui contesti
         //Prendo i contesti di fila, prendo un luogo a caso, verifico se il luogo ha tutte le categorie adatte per quel contesto, se si linko altrimenti riprovo
         int p = 0;
@@ -95,9 +104,21 @@ public class Grafo {
                     check = false;
                 }
             }
+
             //System.out.println("Contesto:" +contesti.get(p) + " - Luogo: " + nomi[rand_L]+ " - Contesti Luogo: "+ Arrays.toString(categorieLuogo) + " - Check: " + check);
             if (check) {
                 graph.addEdge("CL:" + (++archi_CL), new Pair<>("C_" + contesti.get(p), "L_" + nomi[rand_L].toString()));
+                ArrayList<String> temp = new ArrayList<String>();
+                temp.add(nomi[rand_L].toString());
+                if(pref.containsKey(contesti.get(p))){
+                    ArrayList<String> t = pref.get(contesti.get(p));
+                    t.add(nomi[rand_L].toString());
+                    pref.put(contesti.get(p), t);
+                }else{
+                    pref.put(contesti.get(p), temp);
+                }
+
+
                 p++;
             } else {
                 i--;
@@ -105,6 +126,8 @@ public class Grafo {
 
 
         }//Livello 1-2
+
+        preferenze = pref;
 
         //-----------DETTAGLI-------------------
         //alcuni dati sul jung.Grafo a scopo di verifica
@@ -126,9 +149,13 @@ public class Grafo {
 //		System.out.println("---");
     }
 
+    public HashMap<String, ArrayList<String>> getP() {
+        return preferenze;
+    }
+
     public HashMap<String, Double> Pagerank(int top_results) {
 
-        HashMap<String,Double> result_pr = new HashMap<String,Double>();
+        HashMap<String, Double> result_pr = new HashMap<String, Double>();
 
         PageRank ranker = new PageRank(graph, 0.3);
         ranker.evaluate();
@@ -153,7 +180,7 @@ public class Grafo {
             String nome = obj[i].toString();
             String score = nome.substring(nome.indexOf("=") + 1);
             nome = nome.substring(nome.indexOf("_") + 1, nome.indexOf("="));
-            result_pr.put(nome,Double.valueOf(score));
+            result_pr.put(nome, Double.valueOf(score));
             String stamp = i + 1 + " - " + nome + " - Score: " + score + " [";
             String[] cats = luoghi.get(nome);
             for (String s : cats
@@ -171,7 +198,7 @@ public class Grafo {
 
     public HashMap<String, Double> PagerankPriors(int top_results) {
 
-        HashMap<String,Double> result_prp = new HashMap<String,Double>();
+        HashMap<String, Double> result_prp = new HashMap<String, Double>();
 
         Function f = ((Object i) -> {
             if (contesto.contains(i)) return 1.0;
@@ -204,7 +231,7 @@ public class Grafo {
             String nome = obj[i].toString();
             String score = nome.substring(nome.indexOf("=") + 1);
             nome = nome.substring(nome.indexOf("_") + 1, nome.indexOf("="));
-            result_prp.put(nome,Double.valueOf(score));
+            result_prp.put(nome, Double.valueOf(score));
             String stamp = i + 1 + " - " + nome + " - Score: " + score + " [";
             String[] cats = luoghi.get(nome);
             for (String s : cats
@@ -274,13 +301,13 @@ public class Grafo {
 
 
     public static void addConfiguration(String fileName,
-                                       String str) {
+                                        String str) {
         try {
 
             // Open given file in append mode.
             BufferedWriter out = new BufferedWriter(
                     new FileWriter(fileName, true));
-            out.write(str+"\n");
+            out.write(str + "\n");
             out.close();
         } catch (IOException e) {
             System.out.println("exception occoured" + e);
