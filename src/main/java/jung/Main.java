@@ -15,7 +15,7 @@ public class Main {
         String citta = "torino"; //"bari"
         //int numero_persone = 100;
         boolean full_connected = false;
-        int top_risultati = 3;
+        int top_risultati =5;
         //List<String> contesto = Arrays.asList("P_0", "C_bambini","C_colazione","C_cattivo_umore","C_non_buona_salute","C_weekend");
         List<String> contesto = FromFile.RandomContext();
         //Grafo grafo = new Grafo(citta, numero_persone, full_connected, contesto);
@@ -24,7 +24,7 @@ public class Main {
         //grafo.Mostra();
 
         ArrayList<String> cities = new ArrayList<String>();
-        cities.add("bari");
+        //cities.add("bari");
         cities.add("torino");
         ArrayList<Integer> num_users = new ArrayList<Integer>();
         num_users.add(1);
@@ -37,7 +37,7 @@ public class Main {
         //connection_type.add(true);
 
         Experiment set_exps = new Experiment();
-        set_exps.runExperiments("simulazione.csv", cities, num_users, connection_type, contesto, top_risultati);
+        set_exps.runExperiments("simulazione.csv", cities, num_users, connection_type, contesto, top_risultati, 50);
 
 //        for (int k_c = 0; k_c < number_context_randomgenerated; k_c++){
 //            List<String> contesto = FromFile.RandomContext();

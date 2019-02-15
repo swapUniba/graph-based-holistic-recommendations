@@ -28,7 +28,7 @@ public class Grafo {
     private ArrayList<String> contesti;
     private List<String> contesto;
     private HashMap<String, ArrayList<String>> preferenze;
-    public Grafo(String data, int numero_persone, boolean full_connected, List<String> input_contesto) throws IOException {
+    public Grafo(String data, int numero_persone, boolean full_connected, List<String> input_contesto, int number_events) throws IOException {
         FromFile.SetData(data);
         //Save context user locally
         contesto = input_contesto;
@@ -36,7 +36,7 @@ public class Grafo {
         //Instantiante Graph Boject
         graph = new DelegateForest<>();
         int nodi_P = 0, nodi_C = 0, nodi_L = 0, nodi_D = 0, archi_PC = 0, archi_CL = 0, archi_LD = 0;
-        int num_events = 50;
+        int num_events = number_events;
 
         //Create users
         for (int i = 0; i < numero_persone; i++) {
@@ -138,15 +138,14 @@ public class Grafo {
         //Archi 0-1 PC - archi da Persona a Contesti, livello full connected (TOTEST NOT FULL CONNECTED?)
         //Archi 1-2 CL - archi da Contesti a Luoghi, al momento generati casualmente in base al valore num_events, ma da sostituire con le azioni passate degli utenti
         //Archi 2-3 LD - archi da Luoghi a Descrizioni, livello statico estratti dal file business_torino.csv
-//		System.out.println("Dettagli Grafo");
-//		System.out.println("Livello 0 - Nodi P: "+ nodi_P);
-//		System.out.println("Livello 1 - Nodi C: "+ nodi_C);
-//		System.out.println("Livello 2 - Nodi L: "+ nodi_L);
-//		System.out.println("Livello 3 - Nodi D: "+ nodi_D);
-//		System.out.println("Archi 0-1 PC: "+ archi_PC);
-//		System.out.println("Archi 1-2 CL: "+ archi_CL);
-//		System.out.println("Archi 2-3 LD: "+ archi_LD);
-//		System.out.println("---");
+		System.out.println("\n_________________\nGRAPH TOPOLOGY");
+		System.out.println("Livello 0 - User Nodes:\t#"+ nodi_P);
+		System.out.println("Livello 1 - Context Nodes:\t#"+ nodi_C);
+		System.out.println("Livello 2 - Businesses Nodes:\t#"+ nodi_L);
+		System.out.println("Livello 3 - Category Nodes:\t#"+ nodi_D);
+		System.out.println("Archi 0-1 User - Context:\t#"+ archi_PC);
+		System.out.println("Archi 1-2 Context - Businesses:\t#"+ archi_CL);
+		System.out.println("Archi 2-3 Businesses - Category:\t#"+ archi_LD);
     }
 
     public HashMap<String, ArrayList<String>> getP() {
@@ -160,12 +159,10 @@ public class Grafo {
         PageRank ranker = new PageRank(graph, 0.3);
         ranker.evaluate();
 
-        System.out.println("Dettagli Pagerank");
-        System.out.println("-------------------------------------------------------------------- ");
+        System.out.println("\n_________________\nPAGERANK");
         System.out.println("Tolerance = " + ranker.getTolerance());
         System.out.println("Dump factor = " + (1.00d - ranker.getAlpha()));
         System.out.println("Max iterations = " + ranker.getMaxIterations());
-        System.out.println("-------------------------------------------------------------------- ");
         HashMap<String, Double> map = new HashMap();
         for (Object v : graph.getVertices()) {
             if (v.toString().contains("L_") && !ranker.getVertexScore(v).toString().equals("0.0")) {
@@ -191,8 +188,6 @@ public class Grafo {
             System.out.println(stamp);
         }
 
-        System.out.println("-------------------------------------------------------------------- ");
-
         return result_pr;
     }
 
@@ -208,15 +203,12 @@ public class Grafo {
         PageRankWithPriors ranker = new PageRankWithPriors(graph, f, 0.3);
         ranker.evaluate();
 
-        System.out.println("Dettagli PagerankWithPriors");
-        System.out.println("-------------------------------------------------------------------- ");
+        System.out.println("\n_________________\nPAGERANK W/ PRIORS");
         System.out.println("Tolerance = " + ranker.getTolerance());
         System.out.println("Dump factor = " + (1.00d - ranker.getAlpha()));
         System.out.println("Max iterations = " + ranker.getMaxIterations());
-        System.out.println("-------------------------------------------------------------------- ");
         //Magari dopo i risultati rifiltrare per categoria per ottenere risultati completamente coerenti
-        System.out.println("Contesto preso in considerazione: " + contesto);
-        System.out.println("-------------------------------------------------------------------- ");
+        //System.out.println("Contesto preso in considerazione: " + contesto);
         HashMap<String, Double> map = new HashMap();
         for (Object v : graph.getVertices()) {
             if (v.toString().contains("L_") && !ranker.getVertexScore(v).toString().equals("0.0")) {
@@ -241,7 +233,6 @@ public class Grafo {
             stamp = stamp.substring(0, stamp.length() - 1).concat("]");
             System.out.println(stamp);
         }
-        System.out.println("-------------------------------------------------------------------- ");
         return result_prp;
     }
 
@@ -299,18 +290,4 @@ public class Grafo {
         else System.out.println("Export Type Error");
     }
 
-
-    public static void addConfiguration(String fileName,
-                                        String str) {
-        try {
-
-            // Open given file in append mode.
-            BufferedWriter out = new BufferedWriter(
-                    new FileWriter(fileName, true));
-            out.write(str + "\n");
-            out.close();
-        } catch (IOException e) {
-            System.out.println("exception occoured" + e);
-        }
-    }
 }
