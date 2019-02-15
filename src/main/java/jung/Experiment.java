@@ -1,11 +1,10 @@
 package jung;
 
+import javafx.collections.transformation.SortedList;
+
 import javax.print.DocFlavor;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Experiment {
     public Experiment() {
@@ -14,7 +13,6 @@ public class Experiment {
 
     public static void runExperiments(String fn, ArrayList<String> cities, ArrayList<Integer> num_users, ArrayList<Boolean> connection_type,
                                       List<String> contesto, int top_risultati, int number_events) throws IOException {
-
 
         File f = new File(fn);
         if (f.exists()) {
@@ -106,13 +104,15 @@ public class Experiment {
                         System.out.println("\n_________________\nKEY: "+item.getKey());
                         preferences += item.getKey() + ',';
                         ArrayList<String> temp_prefs_place = item.getValue();
-                        System.out.println(item.getValue());
+                        System.out.println(temp_prefs_place);
+                        Collections.sort(temp_prefs_place);
+                        System.out.println(temp_prefs_place);
                         preferences += '[';
                         for (int kont = 0; kont < item.getValue().size(); kont++) {
                             if (kont == item.getValue().size() - 1) {
                                 preferences += temp_prefs_place.get(kont) + ']'+',';
                             } else {
-                                preferences += temp_prefs_place.get(kont) + ',';
+                                preferences += temp_prefs_place.get(kont) + ";";
                             }
 
                         }
@@ -124,6 +124,9 @@ public class Experiment {
                     //Commenting this line means that you find double comma write on file
                     System.out.println("\n--------------------------------- END EXPERIMENT\n");
                     preferences = preferences.substring(0,preferences.length()-1);
+
+
+
                     String pr = "";
                     pr += "PageRank"+','+preferences;
                     for (Map.Entry<String, Double> entry : alg1.entrySet()) {
@@ -164,7 +167,4 @@ public class Experiment {
         }
     }
 
-    public static void printDetailsEXP(int index_exp, String city, int number_user, List<String> given_context){
-
-    }
 }
