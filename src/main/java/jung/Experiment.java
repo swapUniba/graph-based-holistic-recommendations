@@ -15,11 +15,8 @@ public class Experiment {
                                       List<String> contesto, int top_risultati, int number_events) throws IOException {
 
         File f = new File(fn);
-        if (f.exists()) {
-            f.delete();
-        }
-        if (!f.isDirectory()) {
-            // do something
+        if (!f.exists() && !f.isDirectory()) {
+
 
             try (PrintWriter writer = new PrintWriter(new File(fn))) {
                 //TODO - SISTEMARE PERCHÈ HO AGGIUNTO LE COLONNE DELLE PREFERENZE INIZIALI
@@ -89,7 +86,7 @@ public class Experiment {
 
                     String conf = String.valueOf(number_experiments) + ',';
                     for (int cl = 1; cl < contesto.size(); cl++) {
-                        conf += String.valueOf(contesto.get(cl)) + ',';
+                        conf += String.valueOf(contesto.get(cl).substring(2)) + ',';
                     }
 
                     conf += city + ',' + String.valueOf(num) + ',' + String.valueOf(type) + ',';
@@ -104,7 +101,6 @@ public class Experiment {
                         System.out.println("\n_________________\nKEY: "+item.getKey());
                         preferences += item.getKey() + ',';
                         ArrayList<String> temp_prefs_place = item.getValue();
-                        System.out.println(temp_prefs_place);
                         Collections.sort(temp_prefs_place);
                         System.out.println(temp_prefs_place);
                         preferences += '[';
