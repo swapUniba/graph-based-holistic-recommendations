@@ -10,7 +10,7 @@ import java.util.*;
 public class Main {
     public static void main(String[] args) throws IOException {
 
-        int number_context_randomgenerated = 3;
+        int number_context_randomgenerated = 300;
         //TOTEST WITH AND WITHOUT P_
         String citta = "torino"; //"bari"
         //int numero_persone = 100;
@@ -29,7 +29,7 @@ public class Main {
         ArrayList<Integer> num_users = new ArrayList<Integer>();
         num_users.add(1);
         num_users.add(10);
-        num_users.add(100);
+        //num_users.add(100);
 //        for (int i = 100; i <= 1000; i = i + 100) {
 //            num_users.add(i);
 //        }
@@ -42,7 +42,7 @@ public class Main {
 
         for (int k_c = 0; k_c < number_context_randomgenerated; k_c++) {
             List<String> contesto = FromFile.RandomContext();
-            set_exps.runExperiments("logs.csv", cities, num_users, connection_type, contesto, top_risultati, 50);
+            set_exps.runExperiments("logs.csv", k_c + 1, cities, num_users, connection_type, contesto, top_risultati, 50);
         }
 
     }

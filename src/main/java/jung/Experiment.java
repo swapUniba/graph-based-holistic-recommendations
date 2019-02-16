@@ -11,7 +11,7 @@ public class Experiment {
 
     }
 
-    public static void runExperiments(String fn, ArrayList<String> cities, ArrayList<Integer> num_users, ArrayList<Boolean> connection_type,
+    public static void runExperiments(String fn, int experiment_index, ArrayList<String> cities, ArrayList<Integer> num_users, ArrayList<Boolean> connection_type,
                                       List<String> contesto, int top_risultati, int number_events) throws IOException {
 
         File f = new File(fn);
@@ -23,15 +23,7 @@ public class Experiment {
                 StringBuilder sb = new StringBuilder();
                 sb.append("experiment");
                 sb.append(",");
-                sb.append("company");
-                sb.append(",");
-                sb.append("type");
-                sb.append(',');
-                sb.append("mood");
-                sb.append(',');
-                sb.append("health");
-                sb.append(',');
-                sb.append("settimana");
+                sb.append("contesto");
                 sb.append(',');
                 sb.append("city");
                 sb.append(",");
@@ -70,7 +62,6 @@ public class Experiment {
 
         }
 
-        int number_experiments = 1;
         for (int cc = 0; cc < cities.size(); cc++) {
             String city = cities.get(cc);
             for (int cn = 0; cn < num_users.size(); cn++) {
@@ -80,13 +71,17 @@ public class Experiment {
                     Boolean type = connection_type.get(c_cn);
 
 
-                    System.out.println("--------------------------------- EXPERIMENT #"+String.valueOf(number_experiments)+" DETAILS\n");
+                    System.out.println("--------------------------------- EXPERIMENT #"+String.valueOf(experiment_index)+" DETAILS\n");
                     System.out.println(contesto);
                     System.out.println(city + "\t" + String.valueOf(num) + "\t" + String.valueOf(type));
 
-                    String conf = String.valueOf(number_experiments) + ',';
+                    String conf = String.valueOf(experiment_index) + ',' + '[';
                     for (int cl = 1; cl < contesto.size(); cl++) {
-                        conf += String.valueOf(contesto.get(cl).substring(2)) + ',';
+                        if(cl ==  contesto.size()-1){
+                            conf += String.valueOf(contesto.get(cl)) + ']'+',';
+                        }else{
+                            conf += String.valueOf(contesto.get(cl)) + ';';
+                        }
                     }
 
                     conf += city + ',' + String.valueOf(num) + ',' + String.valueOf(type) + ',';
@@ -96,13 +91,13 @@ public class Experiment {
                     String preferences = "";
 
 
-                    System.out.println("\n_________________\nPREFERENCES A PRIORI");
+                    //System.out.println("_________________\nPREFERENCES A PRIORI");
                     for (Map.Entry<String, ArrayList<String>> item : prefs.entrySet()) {
-                        System.out.println("\n_________________\nKEY: "+item.getKey());
+
                         preferences += item.getKey() + ',';
                         ArrayList<String> temp_prefs_place = item.getValue();
                         Collections.sort(temp_prefs_place);
-                        System.out.println(temp_prefs_place);
+                        System.out.println("\n_________________\nKEY: "+item.getKey()+"\n"+temp_prefs_place);
                         preferences += '[';
                         for (int kont = 0; kont < item.getValue().size(); kont++) {
                             if (kont == item.getValue().size() - 1) {
@@ -143,7 +138,6 @@ public class Experiment {
                     addConfiguration(fn, conf + prp);
                     //g.Mostra();
                     //System.out.println("\n");
-                    number_experiments++;
                 }
             }
         }

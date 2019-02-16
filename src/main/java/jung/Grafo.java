@@ -138,14 +138,14 @@ public class Grafo {
         //Archi 0-1 PC - archi da Persona a Contesti, livello full connected (TOTEST NOT FULL CONNECTED?)
         //Archi 1-2 CL - archi da Contesti a Luoghi, al momento generati casualmente in base al valore num_events, ma da sostituire con le azioni passate degli utenti
         //Archi 2-3 LD - archi da Luoghi a Descrizioni, livello statico estratti dal file business_torino.csv
-		System.out.println("\n_________________\nGRAPH TOPOLOGY");
-		System.out.println("Livello 0 - User Nodes:\t#"+ nodi_P);
-		System.out.println("Livello 1 - Context Nodes:\t#"+ nodi_C);
-		System.out.println("Livello 2 - Businesses Nodes:\t#"+ nodi_L);
-		System.out.println("Livello 3 - Category Nodes:\t#"+ nodi_D);
-		System.out.println("Archi 0-1 User - Context:\t#"+ archi_PC);
-		System.out.println("Archi 1-2 Context - Businesses:\t#"+ archi_CL);
-		System.out.println("Archi 2-3 Businesses - Category:\t#"+ archi_LD);
+//		System.out.println("\n_________________\nGRAPH TOPOLOGY");
+//		System.out.println("Livello 0 - User Nodes:\t#"+ nodi_P);
+//		System.out.println("Livello 1 - Context Nodes:\t#"+ nodi_C);
+//		System.out.println("Livello 2 - Businesses Nodes:\t#"+ nodi_L);
+//		System.out.println("Livello 3 - Category Nodes:\t#"+ nodi_D);
+//		System.out.println("Archi 0-1 User - Context:\t#"+ archi_PC);
+//		System.out.println("Archi 1-2 Context - Businesses:\t#"+ archi_CL);
+//		System.out.println("Archi 2-3 Businesses - Category:\t#"+ archi_LD);
     }
 
     public HashMap<String, ArrayList<String>> getP() {
