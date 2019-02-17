@@ -1,44 +1,61 @@
 package jung;
 
 
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Container;
+import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import com.google.common.base.Function;
-import edu.uci.ics.jung.algorithms.layout.DAGLayout;
+import com.google.common.base.Functions;
+import edu.uci.ics.jung.algorithms.layout.*;
 import edu.uci.ics.jung.algorithms.scoring.PageRank;
 import edu.uci.ics.jung.algorithms.scoring.PageRankWithPriors;
 import edu.uci.ics.jung.graph.DelegateForest;
+import edu.uci.ics.jung.graph.Graph;
+import edu.uci.ics.jung.graph.OrderedSparseMultigraph;
+import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.graph.util.Pair;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+
+import static javax.swing.JFrame.EXIT_ON_CLOSE;
 
 public class Grafo {
 
-    private DelegateForest<String, String> graph;
+    private Graph graph;
     private HashMap<String, String[]> luoghi;
     private ArrayList<String> contesti;
     private List<String> contesto;
     private HashMap<String, ArrayList<String>> preferenze;
-    public Grafo(String data, int numero_persone, boolean full_connected, List<String> input_contesto, int number_events) throws IOException {
+    private HashMap<String, Point2D> layoutvertici;
+    private int width=1000;
+    private int height=800;
+    private int nodi_P = 0, nodi_C = 0, nodi_L = 0, nodi_D = 0, archi_PC = 0, archi_CL = 0, archi_LD = 0;
+    private int P_map=0, C_map=0, L_map=0, D_map=0;
+
+    public Grafo(String data, int numero_persone, boolean full_connected, boolean diretto, List<String> input_contesto, int number_events) throws IOException {
         FromFile.SetData(data);
         //Save context user locally
         contesto = input_contesto;
-
-        //Instantiante Graph Boject
-        graph = new DelegateForest<>();
-        int nodi_P = 0, nodi_C = 0, nodi_L = 0, nodi_D = 0, archi_PC = 0, archi_CL = 0, archi_LD = 0;
+        layoutvertici = new HashMap<>();
+        //Instantiante Graph Oject
+        graph = new OrderedSparseMultigraph<>();
         int num_events = number_events;
 
-        //Create users
+        //Create user nodes
         for (int i = 0; i < numero_persone; i++) {
             graph.addVertex("P_" + i); //Livello 0
             nodi_P++;
@@ -51,12 +68,12 @@ public class Grafo {
 
 
         if (full_connected) {
-            // For each user
+            // For each user node
             for (int i = 0; i < numero_persone; i++) {
                 // For each different context parameters (TAKING ALL VALUES)
                 for (int y = 0; y < nodi_C; y++) {
                     // Create edge between (Users - Context Parameters)
-                    graph.addEdge("PC:" + (++archi_PC), new Pair<>("P_" + i, "C_" + contesti.get(y)));
+                    graph.addEdge("PC:" + (++archi_PC), new Pair<>("P_" + i, "C_" + contesti.get(y)), EdgeType.DIRECTED);
                 }
             }
         } else {
@@ -66,7 +83,7 @@ public class Grafo {
                 // For each different context parameters (TAKING ONLY USER VALUES)
                 for (int y = 1; y < contesto.size(); y++) {
                     // Create edge between (Users - User Context Parameters)
-                    graph.addEdge("PC:" + (++archi_PC), new Pair<>("P_" + i, contesto.get(y)));
+                    graph.addEdge("PC:" + (++archi_PC), new Pair<>("P_" + i, contesto.get(y)), EdgeType.DIRECTED);
                 }
             }
         }//Livello 0-1
@@ -82,7 +99,8 @@ public class Grafo {
         for (int i = 0; i < nomi.length; i++) {
             String posto = nomi[i].toString();
             for (int y = 0; y < luoghi.get(posto).length; y++) {
-                graph.addEdge("LD:" + (++archi_LD), new Pair<>("L_" + posto, "D_" + luoghi.get(posto)[y]));
+                if(diretto) graph.addEdge("LD:" + (++archi_LD), new Pair<>("L_" + posto, "D_" + luoghi.get(posto)[y]), EdgeType.DIRECTED);
+                else graph.addEdge("LD:" + (++archi_LD), new Pair<>("L_" + posto, "D_" + luoghi.get(posto)[y]), EdgeType.UNDIRECTED);
             }
         }//Livello 2-3
 
@@ -107,7 +125,8 @@ public class Grafo {
 
             //System.out.println("Contesto:" +contesti.get(p) + " - Luogo: " + nomi[rand_L]+ " - Contesti Luogo: "+ Arrays.toString(categorieLuogo) + " - Check: " + check);
             if (check) {
-                graph.addEdge("CL:" + (++archi_CL), new Pair<>("C_" + contesti.get(p), "L_" + nomi[rand_L].toString()));
+                graph.addEdge("CL:" + (++archi_CL), new Pair<>("C_" + contesti.get(p), "L_" + nomi[rand_L].toString()), EdgeType.DIRECTED);
+                //System.out.println("Ho collegato C_"+contesti.get(p)+ " e L_"+nomi[rand_L].toString());
                 ArrayList<String> temp = new ArrayList<String>();
                 temp.add(nomi[rand_L].toString());
                 if(pref.containsKey(contesti.get(p))){
@@ -159,10 +178,7 @@ public class Grafo {
         PageRank ranker = new PageRank(graph, 0.3);
         ranker.evaluate();
 
-        System.out.println("\n_________________\nPAGERANK");
-        System.out.println("Tolerance = " + ranker.getTolerance());
-        System.out.println("Dump factor = " + (1.00d - ranker.getAlpha()));
-        System.out.println("Max iterations = " + ranker.getMaxIterations());
+        System.out.println("\n---PageRank - Tolerance = " + ranker.getTolerance()+" - Dump factor = " + (1.00d - ranker.getAlpha()+ " - Max iterations = " + ranker.getMaxIterations()));
         HashMap<String, Double> map = new HashMap();
         for (Object v : graph.getVertices()) {
             if (v.toString().contains("L_") && !ranker.getVertexScore(v).toString().equals("0.0")) {
@@ -203,10 +219,7 @@ public class Grafo {
         PageRankWithPriors ranker = new PageRankWithPriors(graph, f, 0.3);
         ranker.evaluate();
 
-        System.out.println("\n_________________\nPAGERANK W/ PRIORS");
-        System.out.println("Tolerance = " + ranker.getTolerance());
-        System.out.println("Dump factor = " + (1.00d - ranker.getAlpha()));
-        System.out.println("Max iterations = " + ranker.getMaxIterations());
+        System.out.println("\n---PageRankWithPriors - Tolerance = " + ranker.getTolerance()+" - Dump factor = " + (1.00d - ranker.getAlpha()+ " - Max iterations = " + ranker.getMaxIterations()));
         //Magari dopo i risultati rifiltrare per categoria per ottenere risultati completamente coerenti
         //System.out.println("Contesto preso in considerazione: " + contesto);
         HashMap<String, Double> map = new HashMap();
@@ -236,12 +249,39 @@ public class Grafo {
         return result_prp;
     }
 
+    public void AddToMap(Object j){
+        if(j.toString().contains("P_")){
+            float offset= (float)(P_map+1)/(nodi_P+1);
+            layoutvertici.put(j.toString(),new Point2D.Float(offset*width, height/11));
+            P_map++;
+        }
+        else if (j.toString().contains("C_")){
+            float offset= (float)(C_map+1)/(nodi_C+1);
+            layoutvertici.put(j.toString(),new Point2D.Float(offset*width, 4*(height/11)));
+            C_map++;
+        }
+        else if (j.toString().contains("L_")){
+            float offset= (float)(L_map+1)/(nodi_L+1);
+            layoutvertici.put(j.toString(),new Point2D.Float(offset*width, 7*(height/11)));
+            L_map++;
+        }
+        else if (j.toString().contains("D_")){
+            float offset= (float)(D_map+1)/(nodi_D+1);
+            layoutvertici.put(j.toString(),new Point2D.Float(offset*width, 10*(height/11)));
+            D_map++;
+        }
+        else{
+            layoutvertici.put(j.toString(),new Point2D.Float(0, 0));
+            System.out.println("GRAVE ERRORE");}
+    }
+
 
     public void Mostra() {
+        graph.getVertices().stream().forEach((Object j) -> AddToMap(j));
+        Function<String, Point2D> vertexLocations = Functions.forMap(layoutvertici);
 
-        DAGLayout<String, String> layout = new DAGLayout<String, String>(graph);
-        layout.setRoot("P_0");
-        VisualizationViewer<String, String> vs = new VisualizationViewer<String, String>(layout, new Dimension(1000, 800));
+        StaticLayout layout = new StaticLayout(graph, vertexLocations);
+        VisualizationViewer<String, String> vs = new VisualizationViewer<String, String>(layout, new Dimension(width, height));
         vs.getRenderer().setVertexRenderer(new CustomRenderer());
         JFrame frame = new JFrame();
 
@@ -273,7 +313,7 @@ public class Grafo {
         });
 
         frame.getContentPane().add(vs);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
         frame.setTitle("Holistic Recommendation Graph");

@@ -1,8 +1,8 @@
-Settimana=weekday
+Settimana=settimana
 Settimana=weekend
 Company=famiglia
-Company=bambini
-Company=fidanzata
+Company=amici
+Company=partner
 Health=buona_salute
 Health=non_buona_salute
 Mood=buon_umore
