@@ -70,7 +70,7 @@ public class Experiment {
                 Integer num = num_users.get(cn);
                 for (int c_cn = 0; c_cn < connection_type.size(); c_cn++) {
                     Boolean type = connection_type.get(c_cn);
-                    String conn = type ? "Completa" : "Contesto";
+                    String conn = type ? "Completa" : "SoloContesto";
 
                     for (int c_gt = 0; c_gt < graph_type.size(); c_gt++) {
                         Boolean graph = graph_type.get(c_gt);
