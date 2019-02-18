@@ -21,6 +21,7 @@ public class Main {
         //RandomControl.setRandom(); //totalmente random
         RandomControl.setRandom(2323);  //mantiene lo stesso "random" per confrontare meglio alcuni casi particolari
 
+
         //SINGLE GRAPH
         //List<String> contesto = FromFile.RandomContext();
         List<String> contesto = Arrays.asList("P_0", "C_famiglia","C_si_attivita","C_cattivo_umore","C_stanco","C_weekend");
@@ -29,16 +30,24 @@ public class Main {
         grafo.Pagerank(top_risultati);
         grafo.PagerankPriors(top_risultati);
         //grafo.Mostra();
+*/
+/*
+        //VARIABLES CONFRONT
+        String citta = "torino"; //"bari"
+        int numero_persone = 5;
+        boolean full_connected = false;
+        boolean grafo_diretto = false;
+        int top_risultati = 10;
+        int numero_eventi = 10;
+        List<String> contesto = Arrays.asList("P_0", "C_famiglia","C_si_attivita","C_cattivo_umore","C_stanco","C_weekend");
 
-        RandomControl.setRandom(2323);
-        contesto = Arrays.asList("P_0", "C_famiglia","C_cattivo_umore","C_stanco");  //test per vedere che accade con contesti incompleti
-        grafo = new Grafo(citta, numero_persone, full_connected, grafo_diretto, contesto, numero_eventi);
-        //contesto = Arrays.asList("P_0", "C_famiglia","C_si_attivita","C_cattivo_umore","C_stanco","C_weekend");  //test per vedere che accade con stesso contesto ma grafo direttos
-        //grafo = new Grafo(citta, numero_persone, full_connected, grafo_diretto=true, contesto, numero_eventi);
-        grafo.Dettagli(citta, numero_persone, full_connected, grafo_diretto, contesto, numero_eventi);
-        grafo.Pagerank(top_risultati);
-        grafo.PagerankPriors(top_risultati);
-        //grafo.Mostra();
+        //CONFRONT GRAPH
+        Confronta confronto = new Confronta(citta, numero_persone, full_connected, grafo_diretto, contesto, numero_eventi, top_risultati);
+        confronto.setRandom(2323);  //non settarlo per true random, può essere utile per confrontare due run senza cambiare niente
+        confronto.setContesto(Arrays.asList("P_0", "C_famiglia","C_cattivo_umore","C_stanco"));   //test per vedere che accade con contesti incompleti
+        confronto.Start("contesto", false);
+
+        //confronto.Start("grafo_diretto", false); //test per vedere che accade con stesso contesto ma grafo diretto, non serve settare niente per i valori boolean
 */
 
 

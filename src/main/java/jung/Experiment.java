@@ -139,7 +139,7 @@ public class Experiment {
                         }
 
                         addConfiguration(fn, conf + prp);
-                        g.Mostra();
+                        //g.Mostra();
                         //System.out.println("\n");
                     }
                 }
