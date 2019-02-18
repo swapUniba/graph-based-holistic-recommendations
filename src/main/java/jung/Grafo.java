@@ -11,9 +11,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
@@ -113,7 +111,7 @@ public class Grafo {
         for (int i = 0; i < num_events; i++) {
             if (p == contesti.size()) p = 0;
             List<Object> contestiToCheck = contestiCateg.get(contesti.get(p));
-            int rand_L = (int) (Math.random() * luoghi.size());
+            int rand_L = (RandomControl.getControl().nextInt(luoghi.size()));
             String luogo = nomi[rand_L].toString();
             String[] categorieLuogo = luoghi.get(luogo);
             boolean check = true;
@@ -147,7 +145,9 @@ public class Grafo {
         }//Livello 1-2
 
         preferenze = pref;
+    }
 
+    public void Dettagli(String citta, int numero_persone, boolean full_connected, boolean diretto, List<String> input_contesto, int number_events){
         //-----------DETTAGLI-------------------
         //alcuni dati sul jung.Grafo a scopo di verifica
         //Livello 0 - nodi Persona, al momento caso singolo =1;
@@ -157,14 +157,25 @@ public class Grafo {
         //Archi 0-1 PC - archi da Persona a Contesti, livello full connected (TOTEST NOT FULL CONNECTED?)
         //Archi 1-2 CL - archi da Contesti a Luoghi, al momento generati casualmente in base al valore num_events, ma da sostituire con le azioni passate degli utenti
         //Archi 2-3 LD - archi da Luoghi a Descrizioni, livello statico estratti dal file business_torino.csv
-//		System.out.println("\n_________________\nGRAPH TOPOLOGY");
-//		System.out.println("Livello 0 - User Nodes:\t#"+ nodi_P);
-//		System.out.println("Livello 1 - Context Nodes:\t#"+ nodi_C);
-//		System.out.println("Livello 2 - Businesses Nodes:\t#"+ nodi_L);
-//		System.out.println("Livello 3 - Category Nodes:\t#"+ nodi_D);
-//		System.out.println("Archi 0-1 User - Context:\t#"+ archi_PC);
-//		System.out.println("Archi 1-2 Context - Businesses:\t#"+ archi_CL);
-//		System.out.println("Archi 2-3 Businesses - Category:\t#"+ archi_LD);
+		System.out.println("_________________");
+        System.out.println("GRAPH DETAILS");
+		System.out.println("Livello 0 - User Nodes:\t#"+ nodi_P);
+		System.out.println("Livello 1 - Context Nodes:\t#"+ nodi_C);
+		System.out.println("Livello 2 - Businesses Nodes:\t#"+ nodi_L);
+		System.out.println("Livello 3 - Category Nodes:\t#"+ nodi_D);
+		System.out.println("Archi 0-1 User - Context:\t#"+ archi_PC);
+		System.out.println("Archi 1-2 Context - Businesses:\t#"+ archi_CL);
+		System.out.println("Archi 2-3 Businesses - Category:\t#"+ archi_LD);
+        String conn = full_connected ? "Completa" : "SoloContesto";
+        String grap = diretto ? "Diretto" : "Misto";
+        System.out.println("City: " + citta + " - Persone: " + numero_persone + " - Connessione: " + conn + " - Grafo: " + grap + " - Contesto: " + input_contesto);
+        System.out.println("---Collegamenti:");
+        HashMap<String, ArrayList<String>> prefs = getP();
+        for (Map.Entry<String, ArrayList<String>> item : prefs.entrySet()) {
+            ArrayList<String> temp_prefs_place = item.getValue();
+            Collections.sort(temp_prefs_place);
+            System.out.println(item.getKey() + " -> " + temp_prefs_place);
+        }
     }
 
     public HashMap<String, ArrayList<String>> getP() {

@@ -7,8 +7,8 @@ import java.io.*;
 import java.util.*;
 
 public class Experiment {
-    public Experiment() {
 
+    public Experiment() {
     }
 
     public static void runExperiments(String fn, int experiment_index, ArrayList<String> cities, ArrayList<Integer> num_users, ArrayList<Boolean> connection_type,
@@ -63,6 +63,7 @@ public class Experiment {
             }
 
         }
+
 
         for (int cc = 0; cc < cities.size(); cc++) {
             String city = cities.get(cc);
@@ -138,7 +139,7 @@ public class Experiment {
                         }
 
                         addConfiguration(fn, conf + prp);
-                        g.Mostra();
+                        //g.Mostra();
                         //System.out.println("\n");
                     }
                 }
