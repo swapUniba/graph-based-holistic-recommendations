@@ -8,7 +8,10 @@ import java.util.*;
 
 public class Experiment {
 
-    public Experiment() {
+    private static HashMap<String, String[]> luoghi;
+
+    public Experiment() throws IOException {
+        luoghi = FromFile.getPlacesNew();
     }
 
     public static void runExperiments(String fn, int experiment_index, ArrayList<String> cities, ArrayList<Integer> num_users, ArrayList<Boolean> connection_type,
@@ -90,7 +93,7 @@ public class Experiment {
 
                         conf += city + ',' + num + ',' + conn + ','+ grap + ',';
 
-                        Grafo g = new Grafo(city, num, type, graph, contesto, number_events);
+                        VecchioGrafo g = new VecchioGrafo(city, num, type, graph, contesto, number_events);
                         HashMap<String, ArrayList<String>> prefs = g.getP();
                         String preferences = "";
 
@@ -101,7 +104,29 @@ public class Experiment {
                             preferences += item.getKey() + ',';
                             ArrayList<String> temp_prefs_place = item.getValue();
                             Collections.sort(temp_prefs_place);
-                            System.out.println(item.getKey() + " -> " + temp_prefs_place);
+                            String si="-";
+                            if(contesto.contains("C_"+item.getKey())) si="+";
+
+                            /*
+                            //tipo 1
+                            String pref_cats = " - {";
+                            for (String s : temp_prefs_place) {
+                                pref_cats = pref_cats + Arrays.toString(luoghi.get(s))+ " - ";
+                            }
+                            pref_cats=pref_cats.substring(0, pref_cats.length() -3);
+                            System.out.println(si + item.getKey() + " -> " + temp_prefs_place + pref_cats + "}");
+*/
+
+                            //tipo 2
+                            String pref_cats = "[";
+                            for (String s : temp_prefs_place) {
+                                pref_cats = pref_cats + s +  Arrays.toString(luoghi.get(s)).replace("[", "(").replace("]", ")") + " - ";
+                            }
+                            pref_cats=pref_cats.substring(0, pref_cats.length() -3);
+                            System.out.println(si + item.getKey() + " -> " + pref_cats + "]");
+
+
+
                             preferences += '[';
                             for (int kont = 0; kont < item.getValue().size(); kont++) {
                                 if (kont == item.getValue().size() - 1) {
@@ -112,6 +137,21 @@ public class Experiment {
 
                             }
                         }
+
+                        System.out.print("---Collegamenti Contesto: ");
+                        List<String> list = new ArrayList<>();
+                        for (String s: contesto) {
+                            if (s == contesto.get(0)) continue;
+                            s=s.substring(2);
+                            list.addAll(prefs.get(s));
+                        }
+                        System.out.println(list);
+                        System.out.print("---Categorie Collegamenti:");
+                        List<String> list2 = new ArrayList<>();
+                        for (String l: list) {
+                            list2.addAll(Arrays.asList(luoghi.get(l)));
+                        }
+                        System.out.println(list2);
 
                         HashMap<String, Double> alg1 = g.Pagerank(top_risultati);
                         HashMap<String, Double> alg2 = g.PagerankPriors(top_risultati);

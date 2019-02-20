@@ -35,7 +35,7 @@ public class Confronta {
     }
 
     public void Start(String toConfront, boolean show_graph) throws IOException {
-
+        if(seed_set) setRandom(seed);
         Grafo grafo = new Grafo(citta, numero_persone, full_connected, grafo_diretto, contesto, numero_eventi);
         grafo.Dettagli(citta, numero_persone, full_connected, grafo_diretto, contesto, numero_eventi);
         grafo.Pagerank(top_risultati);

@@ -32,7 +32,7 @@ public class FromFile {
 	public static HashMap<String, String[]> getPlacesNew() throws IOException
 
 	{
-		File file = new File(GetPath("businesses_"+data+".csv"));
+		File file = new File(GetPath("new_businesses_"+data+".csv"));
 
 		BufferedReader br = new BufferedReader(new FileReader(file));
 
@@ -54,7 +54,7 @@ public class FromFile {
 	public static ArrayList<ArrayList<String>> getPlaces() throws IOException
 
 	{
-		File file = new File(GetPath("businesses_"+data+".csv"));
+		File file = new File(GetPath("new_businesses_"+data+".csv"));
 
 		BufferedReader br = new BufferedReader(new FileReader(file));
 
