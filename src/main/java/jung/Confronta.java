@@ -39,7 +39,10 @@ public class Confronta {
         Grafo grafo = new Grafo(citta, numero_persone, full_connected, grafo_diretto, contesto, numero_eventi);
         grafo.Dettagli(citta, numero_persone, full_connected, grafo_diretto, contesto, numero_eventi);
         grafo.Pagerank(top_risultati);
-        grafo.PagerankPriors(top_risultati);
+        grafo.PagerankPriors(top_risultati, PriorsFunction.getF1(contesto));
+        //grafo.PagerankPriors(top_risultati, PriorsFunction.getF2(contesto));
+        //grafo.PagerankPriors(top_risultati, PriorsFunction.getF3(contesto, grafo.getP_c()));
+        //grafo.PagerankPriors(top_risultati, PriorsFunction.getF4(contesto, grafo.getP_c()));
         if(show_graph) grafo.Mostra();
 
 
@@ -85,7 +88,10 @@ public class Confronta {
         grafo = new Grafo(citta, numero_persone, full_connected, grafo_diretto, contesto, numero_eventi);
         grafo.Dettagli(citta, numero_persone, full_connected, grafo_diretto, contesto, numero_eventi);
         grafo.Pagerank(top_risultati);
-        grafo.PagerankPriors(top_risultati);
+        grafo.PagerankPriors(top_risultati, PriorsFunction.getF1(contesto));
+        //grafo.PagerankPriors(top_risultati, PriorsFunction.getF2(contesto));
+        //grafo.PagerankPriors(top_risultati, PriorsFunction.getF3(contesto, grafo.getP_c()));
+        //grafo.PagerankPriors(top_risultati, PriorsFunction.getF4(contesto, grafo.getP_c()));
         if(show_graph) grafo.Mostra();
 
         } catch (NullPointerException e){

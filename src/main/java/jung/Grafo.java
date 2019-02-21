@@ -35,6 +35,7 @@ public class Grafo {
     private HashMap<String, String[]> luoghi;
     private ArrayList<String> contesti;
     private List<String> contesto;
+    private List<String> pref_contesto;
     private HashMap<String, ArrayList<String>> preferenze;
     private HashMap<String, Point2D> layoutvertici;
     private int width=1000;
@@ -124,7 +125,14 @@ public class Grafo {
                 p++;
             }//Livello 1-2
 
-       // preferenze = pref;
+
+        pref_contesto = new ArrayList<>();
+        for (String s: contesto) {
+            if (s == contesto.get(0)) continue;
+            s=s.substring(2);
+            pref_contesto.addAll(preferenze.get(s));
+        }
+
     }
 
     public void Dettagli(String citta, int numero_persone, boolean full_connected, boolean diretto, List<String> input_contesto, int number_events){
@@ -160,17 +168,15 @@ public class Grafo {
             System.out.println(si + item.getKey() + " -> " + temp_prefs_place);
         }
         System.out.print("---Collegamenti Contesto: ");
-        List<String> list = new ArrayList<>();
-        for (String s: contesto) {
-            if (s == contesto.get(0)) continue;
-            s=s.substring(2);
-            list.addAll(prefs.get(s));
-        }
-        System.out.println(list);
+        System.out.println(getP_c());
     }
 
     public HashMap<String, ArrayList<String>> getP() {
         return preferenze;
+    }
+
+    public List<String> getP_c() {
+        return pref_contesto;
     }
 
     public HashMap<String, Double> Pagerank(int top_results) {
@@ -209,14 +215,9 @@ public class Grafo {
         return result_pr;
     }
 
-    public HashMap<String, Double> PagerankPriors(int top_results) {
+    public HashMap<String, Double> PagerankPriors(int top_results, Function f) {
 
         HashMap<String, Double> result_prp = new HashMap<String, Double>();
-
-        Function f = ((Object i) -> {
-            if (contesto.contains(i)) return 1.0;
-            else return 0.0;
-        });
 
         PageRankWithPriors ranker = new PageRankWithPriors(graph, f, 0.3);
         ranker.evaluate();

@@ -15,24 +15,27 @@ public class Main {
         String citta = "bari"; //"bari"
         int numero_persone = 1;
         boolean full_connected = false;
-        boolean grafo_diretto = false;
+        boolean grafo_diretto = true;
         int top_risultati = 10;
         int numero_eventi = 15;
-        //RandomControl.setRandom(); //totalmente random
-        RandomControl.setRandom(2323);  //mantiene lo stesso "random" per confrontare meglio alcuni casi particolari
+        RandomControl.setRandom(); //totalmente random
+        //RandomControl.setRandom(2323);  //mantiene lo stesso "random" per confrontare meglio alcuni casi particolari
 
 
         //SINGLE GRAPH
-        //List<String> contesto = FromFile.RandomContext();
-        List<String> contesto = Arrays.asList("P_0", "C_famiglia","C_si_attivita","C_cattivo_umore","C_stanco","C_weekend","C_cena");
+        List<String> contesto = FromFile.RandomContext();
+        //List<String> contesto = Arrays.asList("P_0", "C_famiglia","C_si_attivita","C_cattivo_umore","C_stanco","C_weekend","C_cena");
         Grafo grafo = new Grafo(citta, numero_persone, full_connected, grafo_diretto, contesto, numero_eventi);
         grafo.Dettagli(citta, numero_persone, full_connected, grafo_diretto, contesto, numero_eventi);
         grafo.Pagerank(top_risultati);
-        grafo.PagerankPriors(top_risultati);
+        grafo.PagerankPriors(top_risultati, PriorsFunction.getF1(contesto));
+        grafo.PagerankPriors(top_risultati, PriorsFunction.getF2(contesto));
+        grafo.PagerankPriors(top_risultati, PriorsFunction.getF3(contesto, grafo.getP_c()));
+        grafo.PagerankPriors(top_risultati, PriorsFunction.getF4(contesto, grafo.getP_c()));
         //grafo.Mostra();
 */
 
-/*
+
 
         //VARIABLES CONFRONT
         String citta = "bari"; //"bari"
@@ -52,9 +55,9 @@ public class Main {
 
         confronto.Start("grafo_diretto", false); //test per vedere che accade con stesso contesto ma grafo diretto, non serve settare niente per i valori boolean
 
-*/
 
 
+/*
         //VARIABLES EXPERIMENT
         int top_risultati = 3;
         int number_context_randomgenerated = 1;
@@ -93,7 +96,7 @@ public class Main {
         }
 
 
-
+*/
 
     }
 }

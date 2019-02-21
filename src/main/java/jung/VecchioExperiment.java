@@ -1,16 +1,13 @@
 package jung;
 
-import javafx.collections.transformation.SortedList;
-
-import javax.print.DocFlavor;
 import java.io.*;
 import java.util.*;
 
-public class Experiment {
+public class VecchioExperiment {
 
     private static HashMap<String, String[]> luoghi;
 
-    public Experiment() throws IOException {
+    public VecchioExperiment() throws IOException {
         luoghi = FromFile.getPlacesNew();
     }
 
@@ -93,7 +90,7 @@ public class Experiment {
 
                         conf += city + ',' + num + ',' + conn + ','+ grap + ',';
 
-                        Grafo g = new Grafo(city, num, type, graph, contesto, number_events);
+                        VecchioGrafo g = new VecchioGrafo(city, num, type, graph, contesto, number_events);
                         HashMap<String, ArrayList<String>> prefs = g.getP();
                         String preferences = "";
 
@@ -106,7 +103,26 @@ public class Experiment {
                             Collections.sort(temp_prefs_place);
                             String si="-";
                             if(contesto.contains("C_"+item.getKey())) si="+";
-                            System.out.println(si + item.getKey() + " -> " + temp_prefs_place);
+
+                            /*
+                            //tipo 1
+                            String pref_cats = " - {";
+                            for (String s : temp_prefs_place) {
+                                pref_cats = pref_cats + Arrays.toString(luoghi.get(s))+ " - ";
+                            }
+                            pref_cats=pref_cats.substring(0, pref_cats.length() -3);
+                            System.out.println(si + item.getKey() + " -> " + temp_prefs_place + pref_cats + "}");
+*/
+
+                            //tipo 2
+                            String pref_cats = "[";
+                            for (String s : temp_prefs_place) {
+                                pref_cats = pref_cats + s +  Arrays.toString(luoghi.get(s)).replace("[", "(").replace("]", ")") + " - ";
+                            }
+                            pref_cats=pref_cats.substring(0, pref_cats.length() -3);
+                            System.out.println(si + item.getKey() + " -> " + pref_cats + "]");
+
+
 
                             preferences += '[';
                             for (int kont = 0; kont < item.getValue().size(); kont++) {
@@ -127,9 +143,15 @@ public class Experiment {
                             list.addAll(prefs.get(s));
                         }
                         System.out.println(list);
+                        System.out.print("---Categorie Collegamenti:");
+                        List<String> list2 = new ArrayList<>();
+                        for (String l: list) {
+                            list2.addAll(Arrays.asList(luoghi.get(l)));
+                        }
+                        System.out.println(list2);
 
                         HashMap<String, Double> alg1 = g.Pagerank(top_risultati);
-                        HashMap<String, Double> alg2 = g.PagerankPriors(top_risultati, PriorsFunction.getF1(contesto));
+                        HashMap<String, Double> alg2 = g.PagerankPriors(top_risultati);
                         //SOME STUFFS WITH COMMA IN CSV - so it's deleted the last character of preferences which is a comma
                         //Commenting this line means that you find double comma write on file
                         System.out.println("------------------------------END EXPERIMENT\n");
