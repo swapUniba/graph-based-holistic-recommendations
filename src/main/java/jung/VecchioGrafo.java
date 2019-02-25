@@ -1,20 +1,9 @@
 package jung;
 
 
-import java.awt.Dimension;
-import java.awt.Container;
-import java.awt.Graphics2D;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.geom.Point2D;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
-
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
-import edu.uci.ics.jung.algorithms.layout.*;
+import edu.uci.ics.jung.algorithms.layout.StaticLayout;
 import edu.uci.ics.jung.algorithms.scoring.PageRank;
 import edu.uci.ics.jung.algorithms.scoring.PageRankWithPriors;
 import edu.uci.ics.jung.graph.Graph;
@@ -24,26 +13,33 @@ import edu.uci.ics.jung.graph.util.Pair;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.*;
 
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
 
-public class Grafo {
+public class VecchioGrafo {
 
     private Graph graph;
     private HashMap<String, String[]> luoghi;
     private ArrayList<String> contesti;
     private List<String> contesto;
-    private List<String> pref_contesto;
     private HashMap<String, ArrayList<String>> preferenze;
     private HashMap<String, Point2D> layoutvertici;
     private int width=1000;
     private int height=800;
-    private int nodi_P = 0, nodi_C = 0, nodi_L = 0, nodi_D = 0, archi_PC = 0, archi_CD = 0, archi_DL = 0;
+    private int nodi_P = 0, nodi_C = 0, nodi_L = 0, nodi_D = 0, archi_PC = 0, archi_CL = 0, archi_LD = 0;
     private int P_map=0, C_map=0, L_map=0, D_map=0;
 
-    public Grafo(String data, int numero_persone, boolean full_connected, boolean diretto, List<String> input_contesto, int number_events) throws IOException {
+    public VecchioGrafo(String data, int numero_persone, boolean full_connected, boolean diretto, List<String> input_contesto, int number_events) throws IOException {
         FromFile.SetData(data);
         //Save context user locally
         contesto = input_contesto;
@@ -85,6 +81,7 @@ public class Grafo {
             }
         }//Livello 0-1
 
+
         luoghi = FromFile.getPlacesNew();
         HashMap<String, List<Object>> contestiCateg = FromFile.getContestiCategorizzati();
         //alcuni luoghi hanno lo stesso nome, al momento vengono accorpati (19 luoghi, 852 in totale 833 usati)
@@ -95,43 +92,48 @@ public class Grafo {
         for (int i = 0; i < nomi.length; i++) {
             String posto = nomi[i].toString();
             for (int y = 0; y < luoghi.get(posto).length; y++) {
-                if(diretto) graph.addEdge("DL:" + (++archi_DL), new Pair<>("D_" + luoghi.get(posto)[y], "L_" + posto), EdgeType.DIRECTED);
-                else graph.addEdge("DL:" + (++archi_DL), new Pair<>("D_" + luoghi.get(posto)[y], "L_" + posto), EdgeType.UNDIRECTED);
+                if(diretto) graph.addEdge("LD:" + (++archi_LD), new Pair<>("L_" + posto, "D_" + luoghi.get(posto)[y]), EdgeType.DIRECTED);
+                else graph.addEdge("LD:" + (++archi_LD), new Pair<>("L_" + posto, "D_" + luoghi.get(posto)[y]), EdgeType.UNDIRECTED);
             }
         }//Livello 2-3
 
 
 
         preferenze = new HashMap<>();
-
         //Per adesso, è spalmato equamente sui contesti
         //Prendo i contesti di fila, prendo un luogo a caso, verifico se il luogo ha tutte le categorie adatte per quel contesto, se si linko altrimenti riprovo
         int p = 0;
-
         for (int i = 0; i < num_events; i++) {
             if (p == contesti.size()) p = 0;
             List<Object> contestiToCheck = contestiCateg.get(contesti.get(p));
-            int rand_D = (RandomControl.getControl().nextInt(contestiToCheck.size()));
-            String categ = contestiToCheck.get(rand_D).toString();
-            //System.out.println(contesti.get(p) + " -> " + contestiToCheck.get(rand_D).toString());
-            graph.addEdge("CD:" + (++archi_CD), new Pair<>("C_" + contesti.get(p), "D_" + categ), EdgeType.DIRECTED);
-            if(preferenze.containsKey(contesti.get(p))){
-                preferenze.get(contesti.get(p)).add(categ);
-            }else{
-                ArrayList<String> temp = new ArrayList<String>();
-                temp.add(categ);
-                preferenze.put(contesti.get(p), temp);
+            int rand_L = (RandomControl.getControl().nextInt(luoghi.size()));
+            String luogo = nomi[rand_L].toString();
+            String[] categorieLuogo = luoghi.get(luogo);
+            boolean check = true;
+            for (int y = 0; y < categorieLuogo.length; y++) {
+                if (!contestiToCheck.contains(categorieLuogo[y])) {
+                    check = false;
+                }
             }
+
+            //System.out.println("Contesto:" +contesti.get(p) + " - Luogo: " + nomi[rand_L]+ " - Contesti Luogo: "+ Arrays.toString(categorieLuogo) + " - Check: " + check);
+            if (check) {
+                graph.addEdge("CL:" + (++archi_CL), new Pair<>("C_" + contesti.get(p), "L_" + nomi[rand_L].toString()), EdgeType.DIRECTED);
+                //System.out.println("Ho collegato C_"+contesti.get(p)+ " e L_"+nomi[rand_L].toString());
+                if(preferenze.containsKey(contesti.get(p))){
+                    preferenze.get(contesti.get(p)).add(nomi[rand_L].toString());
+                }else{
+                    ArrayList<String> temp = new ArrayList<String>();
+                    temp.add(nomi[rand_L].toString());
+                    preferenze.put(contesti.get(p), temp);
+                }
                 p++;
-            }//Livello 1-2
+            } else {
+                i--;
+            }
 
 
-        pref_contesto = new ArrayList<>();
-        for (String s: contesto) {
-            if (s == contesto.get(0)) continue;
-            s=s.substring(2);
-            pref_contesto.addAll(preferenze.get(s));
-        }
+        }//Livello 1-2
 
     }
 
@@ -152,31 +154,56 @@ public class Grafo {
 		System.out.println("Livello 2 - Businesses Nodes:\t#"+ nodi_L);
 		System.out.println("Livello 3 - Category Nodes:\t#"+ nodi_D);
 		System.out.println("Archi 0-1 User - Context:\t#"+ archi_PC);
-		System.out.println("Archi 1-2 Context - Category:\t#"+ archi_CD);
-		System.out.println("Archi 2-3 Category - Business:\t#"+ archi_DL);
+		System.out.println("Archi 1-2 Context - Businesses:\t#"+ archi_CL);
+		System.out.println("Archi 2-3 Businesses - Category:\t#"+ archi_LD);
         String conn = full_connected ? "Completa" : "SoloContesto";
         String grap = diretto ? "Diretto" : "Misto";
         System.out.println("City: " + citta + " - Persone: " + numero_persone + " - Connessione: " + conn + " - Grafo: " + grap + " - Contesto: " + input_contesto);
         System.out.println("---Collegamenti:");
-
         HashMap<String, ArrayList<String>> prefs = getP();
         for (Map.Entry<String, ArrayList<String>> item : prefs.entrySet()) {
             ArrayList<String> temp_prefs_place = item.getValue();
             Collections.sort(temp_prefs_place);
             String si="-";
             if(contesto.contains("C_"+item.getKey())) si="+";
-            System.out.println(si + item.getKey() + " -> " + temp_prefs_place);
+
+            //tipo 1
+            String pref_cats = " - {";
+            for (String s : temp_prefs_place) {
+                pref_cats = pref_cats +  Arrays.toString(luoghi.get(s)) + " - ";
+            }
+            pref_cats=pref_cats.substring(0, pref_cats.length() -3);
+            System.out.println(si + item.getKey() + " -> " + temp_prefs_place + pref_cats + "}");
+
+
+/*
+            //tipo 2
+            String pref_cats = "[";
+            for (String s : temp_prefs_place) {
+                pref_cats = pref_cats + s +  Arrays.toString(luoghi.get(s)).replace("[", "(").replace("]", ")") + " - ";
+            }
+            pref_cats=pref_cats.substring(0, pref_cats.length() -3);
+            System.out.println(si + item.getKey() + " -> " + pref_cats + "]");
+*/
         }
         System.out.print("---Collegamenti Contesto: ");
-        System.out.println(getP_c());
+        List<String> list = new ArrayList<>();
+        for (String s: contesto) {
+            if (s == contesto.get(0)) continue;
+            s=s.substring(2);
+            list.addAll(prefs.get(s));
+        }
+        System.out.println(list);
+        System.out.print("---Categorie Collegamenti:");
+        List<String> list2 = new ArrayList<>();
+        for (String l: list) {
+            list2.addAll(Arrays.asList(luoghi.get(l)));
+        }
+        System.out.println(list2);
     }
 
     public HashMap<String, ArrayList<String>> getP() {
         return preferenze;
-    }
-
-    public List<String> getP_c() {
-        return pref_contesto;
     }
 
     public HashMap<String, Double> Pagerank(int top_results) {
@@ -215,9 +242,14 @@ public class Grafo {
         return result_pr;
     }
 
-    public HashMap<String, Double> PagerankPriors(int top_results, Function f) {
+    public HashMap<String, Double> PagerankPriors(int top_results) {
 
         HashMap<String, Double> result_prp = new HashMap<String, Double>();
+
+        Function f = ((Object i) -> {
+            if (contesto.contains(i)) return 1.0;
+            else return 0.0;
+        });
 
         PageRankWithPriors ranker = new PageRankWithPriors(graph, f, 0.3);
         ranker.evaluate();
@@ -263,15 +295,15 @@ public class Grafo {
             layoutvertici.put(j.toString(),new Point2D.Float(offset*width, 4*(height/11)));
             C_map++;
         }
-        else if (j.toString().contains("D_")){
-            float offset= (float)(D_map+1)/(nodi_D+1);
-            layoutvertici.put(j.toString(),new Point2D.Float(offset*width, 7*(height/11)));
-            D_map++;
-        }
         else if (j.toString().contains("L_")){
             float offset= (float)(L_map+1)/(nodi_L+1);
-            layoutvertici.put(j.toString(),new Point2D.Float(offset*width, 10*(height/11)));
+            layoutvertici.put(j.toString(),new Point2D.Float(offset*width, 7*(height/11)));
             L_map++;
+        }
+        else if (j.toString().contains("D_")){
+            float offset= (float)(D_map+1)/(nodi_D+1);
+            layoutvertici.put(j.toString(),new Point2D.Float(offset*width, 10*(height/11)));
+            D_map++;
         }
         else{
             layoutvertici.put(j.toString(),new Point2D.Float(0, 0));

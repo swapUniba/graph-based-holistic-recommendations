@@ -17,12 +17,9 @@ Caffè/Tè
 Cantine/Enoteche
 Carne di cervo
 Castelli
-Catering
-Chiese
 Cioccolatai
 Cocktail bar
 Colazioni/Brunch
-Corsi di formazione
 Creperie
 Cucina Greca
 Cucina abruzzese
@@ -75,7 +72,6 @@ Gallerie d arte/Spazi espositivi
 Gastronomia
 Gastropub
 Gelaterie
-Gioiellerie
 Hamburger
 Hot dog
 Insalate
@@ -84,17 +80,11 @@ Karaoke
 Kebab
 Lounge bar
 Macellerie
-Mense
 Mercati ortofrutticoli
-Mercatini delle pulci
-Minimarket
 Monumenti/Luoghi storici e d interesse
 Musei
 Negozi alimentari specializzati
 Opera/Danza classica
-Organizzazioni culturali
-Organizzazioni religiose
-Orologi
 Panifici
 Panini/Sandwich
 Parchi

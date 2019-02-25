@@ -12,45 +12,52 @@ public class Main {
 
 /*
         //VARIABLES SINGLE
-        String citta = "torino"; //"bari"
-        int numero_persone = 5;
+        String citta = "bari"; //"bari"
+        int numero_persone = 1;
         boolean full_connected = false;
-        boolean grafo_diretto = false;
+        boolean grafo_diretto = true;
         int top_risultati = 10;
-        int numero_eventi = 10;
-        //RandomControl.setRandom(); //totalmente random
-        RandomControl.setRandom(2323);  //mantiene lo stesso "random" per confrontare meglio alcuni casi particolari
+        int numero_eventi = 15;
+        RandomControl.setRandom(); //totalmente random
+        //RandomControl.setRandom(2323);  //mantiene lo stesso "random" per confrontare meglio alcuni casi particolari
 
 
         //SINGLE GRAPH
-        //List<String> contesto = FromFile.RandomContext();
-        List<String> contesto = Arrays.asList("P_0", "C_famiglia","C_si_attivita","C_cattivo_umore","C_stanco","C_weekend");
+        List<String> contesto = FromFile.RandomContext();
+        //List<String> contesto = Arrays.asList("P_0", "C_famiglia","C_si_attivita","C_cattivo_umore","C_stanco","C_weekend","C_cena");
         Grafo grafo = new Grafo(citta, numero_persone, full_connected, grafo_diretto, contesto, numero_eventi);
         grafo.Dettagli(citta, numero_persone, full_connected, grafo_diretto, contesto, numero_eventi);
         grafo.Pagerank(top_risultati);
-        grafo.PagerankPriors(top_risultati);
+        grafo.PagerankPriors(top_risultati, PriorsFunction.getF1(contesto));
+        grafo.PagerankPriors(top_risultati, PriorsFunction.getF2(contesto));
+        grafo.PagerankPriors(top_risultati, PriorsFunction.getF3(contesto, grafo.getP_c()));
+        grafo.PagerankPriors(top_risultati, PriorsFunction.getF4(contesto, grafo.getP_c()));
         //grafo.Mostra();
 */
-/*
+
+
+
         //VARIABLES CONFRONT
-        String citta = "torino"; //"bari"
-        int numero_persone = 5;
+        String citta = "bari"; //"bari"
+        int numero_persone = 1;
         boolean full_connected = false;
         boolean grafo_diretto = false;
         int top_risultati = 10;
-        int numero_eventi = 10;
-        List<String> contesto = Arrays.asList("P_0", "C_famiglia","C_si_attivita","C_cattivo_umore","C_stanco","C_weekend");
+        int numero_eventi = 15;
+        List<String> contesto = Arrays.asList("P_0", "C_famiglia","C_si_attivita","C_cattivo_umore","C_stanco","C_weekend","C_cena");
 
         //CONFRONT GRAPH
         Confronta confronto = new Confronta(citta, numero_persone, full_connected, grafo_diretto, contesto, numero_eventi, top_risultati);
         confronto.setRandom(2323);  //non settarlo per true random, può essere utile per confrontare due run senza cambiare niente
-        confronto.setContesto(Arrays.asList("P_0", "C_famiglia","C_cattivo_umore","C_stanco"));   //test per vedere che accade con contesti incompleti
-        confronto.Start("contesto", false);
+        //confronto.setContesto(Arrays.asList("P_0", "C_famiglia","C_cattivo_umore","C_stanco"));   //test per vedere che accade con contesti incompleti
+        //confronto.setNumero_eventi(30);
+//        confronto.Start("full_connected", false);
 
-        //confronto.Start("grafo_diretto", false); //test per vedere che accade con stesso contesto ma grafo diretto, non serve settare niente per i valori boolean
-*/
+        confronto.Start("grafo_diretto", false); //test per vedere che accade con stesso contesto ma grafo diretto, non serve settare niente per i valori boolean
 
 
+
+/*
         //VARIABLES EXPERIMENT
         int top_risultati = 3;
         int number_context_randomgenerated = 1;
@@ -58,12 +65,12 @@ public class Main {
         //RandomControl.setRandom(2323);  //mantiene lo stesso "random" per confrontare meglio alcuni casi particolari
 
         ArrayList<String> cities = new ArrayList<String>();
-        cities.add("bari");
+        //cities.add("bari");
         cities.add("torino");
 
         ArrayList<Integer> num_users = new ArrayList<Integer>();
         num_users.add(1);
-        num_users.add(5);
+        //num_users.add(5);
         //num_users.add(100);
 //        for (int i = 100; i <= 1000; i = i + 100) {
 //            num_users.add(i);
@@ -71,12 +78,12 @@ public class Main {
 
         ArrayList<Boolean> connection_type = new ArrayList<Boolean>();
         connection_type.add(false);
-        connection_type.add(true);
+        //connection_type.add(true);
 
         //penso che poi sarà sempre false e si potrà togliere
         ArrayList<Boolean> graph_type = new ArrayList<Boolean>();
         graph_type.add(false);
-        graph_type.add(true);
+       // graph_type.add(true);
 
 
         //EXPERIMENT
@@ -89,7 +96,7 @@ public class Main {
         }
 
 
-
+*/
 
     }
 }

@@ -9,3 +9,6 @@ Mood=buon_umore
 Mood=cattivo_umore
 Attivita=si_attivita
 Attivita=no_attivita
+Type=colazione
+Type=pranzo
+Type=cena
