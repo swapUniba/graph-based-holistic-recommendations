@@ -19,7 +19,7 @@
         <module name="nlp_jung" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
+    <bytecodeTargetLevel target="8">
       <module name="nlp_jung" target="1.8" />
     </bytecodeTargetLevel>
   </component>
