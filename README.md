@@ -32,7 +32,7 @@ Add the JUNG library dependencies in your pom.xml file.
             <artifactId>jung-io</artifactId>
             <version>2.1.1</version>
         </dependency>
-    </dependencies>
+</dependencies>
 ```
 
 ## Usage
